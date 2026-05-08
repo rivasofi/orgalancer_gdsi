@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+.venv/
+venv/
+*.pyc
+
+# Node
+node_modules/
+.next/
+
+# Entorno
+.env
+.env.local
+
+# Git
+.git/
+.gitignore
+
+# Misc
+.DS_Store
+README.md

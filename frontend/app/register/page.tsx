@@ -16,9 +16,34 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setForm({ ...form, email: value });
+    if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      setEmailError("El email no tiene un formato válido");
+    } else {
+      setEmailError("");
+    }
+  };
+
+  const getPasswordStrength = (password: string) => {
+    if (!password) return null;
+    const hasLower = /[a-z]/.test(password);
+    const hasUpper = /[A-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const isLong = password.length >= 8;
+
+    const score = [hasLower, hasUpper, hasNumber, isLong].filter(Boolean).length;
+
+    if (score <= 2) return { label: "Débil", color: "bg-red-400", width: "w-1/3" };
+    if (score === 3) return { label: "Media", color: "bg-yellow-400", width: "w-2/3" };
+    return { label: "Fuerte", color: "bg-green-500", width: "w-full" };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,6 +52,12 @@ export default function RegisterPage() {
 
     if (!accepted) {
       setError("Debés aceptar los términos y condiciones");
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(form.password)) {
+      setError("La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número");
       return;
     }
 
@@ -158,10 +189,13 @@ export default function RegisterPage() {
                 name="email"
                 placeholder="tu@email.com"
                 value={form.email}
-                onChange={handleChange}
+                onChange={handleEmailChange}
                 required
                 className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-300"
               />
+              {emailError && (
+                <p className="text-xs text-red-500 mt-1">{emailError}</p>
+              )}
             </div>
           </div>
 
@@ -208,10 +242,24 @@ export default function RegisterPage() {
                 value={form.password}
                 onChange={handleChange}
                 required
-                minLength={8}
                 className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-300"
               />
             </div>
+            {form.password && (() => {
+              const strength = getPasswordStrength(form.password);
+              return (
+                <div className="mt-2">
+                  <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${strength?.color} ${strength?.width}`} />
+                  </div>
+                  <p className={`text-xs mt-1 ${strength?.label === "Débil" ? "text-red-500" :
+                      strength?.label === "Media" ? "text-yellow-500" : "text-green-500"
+                    }`}>
+                    {strength?.label}
+                  </p>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Checkbox */}
@@ -269,9 +317,5 @@ export default function RegisterPage() {
       </div>
     </main>
   );
-}
-
-function setSuccess(arg0: boolean) {
-  throw new Error("Function not implemented.");
 }
 

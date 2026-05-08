@@ -73,3 +73,6 @@ pip freeze > requirements.txt
 # Instalar una nueva dependencia en el frontend
 cd frontend && npm install nombre-paquete
 ```
+
+## Importante
+Si ya usamos `uvicorn main:app --reload` hay que matar el proceso y volver a correr el comando desde backend (no olvidar levantar el venv)

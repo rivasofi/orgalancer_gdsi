@@ -15,6 +15,7 @@ export default function RegisterPage() {
   const [accepted, setAccepted] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -44,13 +45,39 @@ export default function RegisterPage() {
         return;
       }
 
-      router.push("/dashboard"); // Redirigir tras registro exitoso
+      setSuccess(true);
     } catch {
       setError("Error de conexión, intentá de nuevo");
     } finally {
       setLoading(false);
     }
   };
+
+  if (success) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 px-4">
+        <div className="bg-white rounded-2xl shadow-lg w-full max-w-md px-8 py-12 text-center">
+          <div className="flex justify-center mb-4">
+            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                <path d="M5 13l4 4L19 7" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">¡Te registraste!</h2>
+          <p className="text-gray-400 text-sm mb-6">
+            Tu cuenta fue creada con éxito. Ya podés iniciar sesión.
+          </p>
+          <Link
+            href="/login"
+            className="inline-block w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-500 text-white font-semibold text-sm shadow hover:opacity-90 transition-opacity"
+          >
+            Ir a iniciar sesión
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 px-4">
@@ -109,7 +136,7 @@ export default function RegisterPage() {
                 value={form.full_name}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-300"
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-300"
               />
             </div>
           </div>
@@ -133,7 +160,7 @@ export default function RegisterPage() {
                 value={form.email}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-300"
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-300"
               />
             </div>
           </div>
@@ -157,7 +184,7 @@ export default function RegisterPage() {
                 value={form.profession}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-300"
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-300"
               />
             </div>
           </div>
@@ -182,7 +209,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 required
                 minLength={8}
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-300"
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-300"
               />
             </div>
           </div>
@@ -243,3 +270,8 @@ export default function RegisterPage() {
     </main>
   );
 }
+
+function setSuccess(arg0: boolean) {
+  throw new Error("Function not implemented.");
+}
+

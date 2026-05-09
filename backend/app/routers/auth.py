@@ -1,7 +1,7 @@
 import bcrypt
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from app.schemas import UserRegister, UserResponse
+from app.schemas import UserRegister, UserLogin, UserResponse
 from app.database import get_db
 from app.models import User
 
@@ -28,3 +28,15 @@ def register(user: UserRegister, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     return new_user
+
+
+@router.post("/login", response_model=UserResponse)
+def login(user: UserLogin, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.email == user.email).first()
+    if not db_user:
+        raise HTTPException(status_code=401, detail="Email o contraseña incorrectos")
+
+    if not bcrypt.checkpw(user.password.encode(), db_user.hashed_password.encode()):
+        raise HTTPException(status_code=401, detail="Email o contraseña incorrectos")
+
+    return db_user

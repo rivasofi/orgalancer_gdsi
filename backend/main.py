@@ -1,10 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth
+from fastapi.staticfiles import StaticFiles
+from app.routers import auth, user_profile
 from app.database import engine, Base
 import app.models  # noqa: F401 — necesario para que Base registre los modelos
+import os
 
 Base.metadata.create_all(bind=engine)  # Crea las tablas si no existen
+
+if not os.path.exists("static/avatars"):
+    os.makedirs("static/avatars", exist_ok=True)
 
 app = FastAPI(title="Orgalancer API")
 
@@ -16,8 +21,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
+app.include_router(auth.router)
+app.include_router(user_profile.router)
 
 @app.get("/health")
 def health():

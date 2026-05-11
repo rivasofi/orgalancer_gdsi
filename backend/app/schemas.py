@@ -22,6 +22,11 @@ class UserRegister(BaseModel):
         return v
 
 
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
 class UserResponse(BaseModel):
     id: str
     full_name: str

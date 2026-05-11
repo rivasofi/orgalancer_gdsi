@@ -7,8 +7,11 @@ from app.models import FreelancerProfile
 from app.schemas import (
     FreelancerConfigCreate,
     FreelancerConfigUpdate,
-    FreelancerConfigResponse
+    FreelancerConfigResponse,
+    TariffCalculationRequest,
+    TariffCalculationResponse
 )
+from app.services.tariff_service import tariff_service
 
 router = APIRouter(
     prefix="/api/freelancer",
@@ -119,3 +122,59 @@ def delete_freelancer_config(
     db.commit()
     
     return None
+
+
+@router.post("/calculate", response_model=TariffCalculationResponse)
+def calculate_freelancer_tariff(
+    request: TariffCalculationRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Calculate freelancer tariff in their local currency.
+    
+    This endpoint:
+    1. Gets freelancer profile with hourly rate and currency
+    2. Fetches exchange rate USD → freelancer's currency
+    3. Calculates total: hourly_rate × exchange_rate × hours_worked
+    4. Returns detailed breakdown
+    
+    Request body:
+        {
+            "user_id": "freelancer_001",
+            "hours_worked": 8.5
+        }
+    
+    Response:
+        {
+            "user_id": "freelancer_001",
+            "hours_worked": 8.5,
+            "hourly_rate_usd": 75.50,
+            "currency": "ARS",
+            "exchange_rate": 870.50,
+            "hourly_rate_local": 65713.75,
+            "total_usd": 641.75,
+            "total_local": 558166.875,
+            "breakdown": {...}
+        }
+    
+    Raises:
+        HTTPException: If freelancer not found, exchange rate not found, or invalid hours
+    """
+    try:
+        result = tariff_service.calculate_tariff(
+            db,
+            request.user_id,
+            request.hours_worked
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error calculating tariff: {str(e)}"
+        )
+

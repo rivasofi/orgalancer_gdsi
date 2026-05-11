@@ -113,3 +113,47 @@ class ExchangeRateCreateUpdate(BaseModel):
         if v <= 0:
             raise ValueError('Exchange rate must be positive')
         return v
+
+
+class TariffCalculationRequest(BaseModel):
+    """Request schema for tariff calculation."""
+    
+    user_id: str
+    hours_worked: float
+
+    @field_validator('hours_worked')
+    @classmethod
+    def validate_hours(cls, v: float) -> float:
+        """Validate that hours worked is positive."""
+        if v <= 0:
+            raise ValueError('Hours worked must be greater than 0')
+        return v
+
+
+class TariffBreakdown(BaseModel):
+    """Detailed breakdown of tariff calculation."""
+    
+    hourly_rate_usd: float
+    exchange_rate: float
+    hourly_rate_local: float
+    hours_worked: float
+    total_usd: float
+    total_local: float
+    currency: Optional[str] = None
+    formula: Optional[str] = None
+    note: Optional[str] = None
+
+
+class TariffCalculationResponse(BaseModel):
+    """Response schema for tariff calculation."""
+    
+    user_id: str
+    hours_worked: float
+    hourly_rate_usd: float
+    currency: str
+    exchange_rate: float
+    hourly_rate_local: float
+    total_usd: float
+    total_local: float
+    breakdown: TariffBreakdown
+

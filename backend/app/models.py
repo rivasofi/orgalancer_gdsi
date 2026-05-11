@@ -11,3 +11,8 @@ class User(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     profession = Column(String, nullable=False)
     hashed_password = Column(String, nullable=False)
+    avatar_url = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
+    country = Column(String, nullable=True)
+    specialty = Column(String, nullable=True)
+    years_of_experience = Column(String, nullable=True)

@@ -1,7 +1,26 @@
-fastapi
-uvicorn
-sqlalchemy
-supabase
-anthropic
-python-dotenv
-pydantic
+# Web Framework
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+
+# Database
+sqlalchemy>=2.0.0
+alembic>=1.12.0
+# Note: Using psycopg2 instead of psycopg2-binary for better compatibility on macOS
+# If you need psycopg2-binary, install xcode-select --install first
+
+# External Services
+supabase>=2.0.0
+anthropic>=0.7.0
+
+# Utilities
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-asyncio>=0.21.0
+
+# Development
+requests>=2.31.0
+typing-extensions>=4.0.0

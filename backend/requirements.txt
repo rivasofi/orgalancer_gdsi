@@ -5,3 +5,5 @@ supabase
 anthropic
 python-dotenv
 pydantic
+bcrypt
+pydantic[email]

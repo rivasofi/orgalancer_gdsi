@@ -125,7 +125,7 @@ def delete_freelancer_config(
 
 
 @router.post("/calculate", response_model=TariffCalculationResponse)
-def calculate_freelancer_tariff(
+async def calculate_freelancer_tariff(
     request: TariffCalculationRequest,
     db: Session = Depends(get_db)
 ):
@@ -134,9 +134,10 @@ def calculate_freelancer_tariff(
     
     This endpoint:
     1. Gets freelancer profile with hourly rate and currency
-    2. Fetches exchange rate USD → freelancer's currency
-    3. Calculates total: hourly_rate × exchange_rate × hours_worked
-    4. Returns detailed breakdown
+    2. Fetches REAL-TIME exchange rate from DolarApi.com
+    3. Falls back to cached rates in DB if API unavailable
+    4. Calculates total: hourly_rate × exchange_rate × hours_worked
+    5. Returns detailed breakdown
     
     Request body:
         {
@@ -161,7 +162,7 @@ def calculate_freelancer_tariff(
         HTTPException: If freelancer not found, exchange rate not found, or invalid hours
     """
     try:
-        result = tariff_service.calculate_tariff(
+        result = await tariff_service.calculate_tariff(
             db,
             request.user_id,
             request.hours_worked

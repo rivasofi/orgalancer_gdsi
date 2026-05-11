@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import create_tables
-from app.routers import freelancer, rates
+from app.routers import freelancer, rates, chat
 import os
 from dotenv import load_dotenv
 
@@ -29,6 +29,7 @@ app.add_middleware(
 # Include routers
 app.include_router(freelancer.router)
 app.include_router(rates.router)
+app.include_router(chat.router)
 
 
 @app.on_event("startup")

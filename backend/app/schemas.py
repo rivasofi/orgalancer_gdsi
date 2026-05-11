@@ -157,3 +157,36 @@ class TariffCalculationResponse(BaseModel):
     total_local: float
     breakdown: TariffBreakdown
 
+
+class ChatCalculateRequest(BaseModel):
+    """Request schema for chat tariff calculation."""
+    
+    user_id: str
+    hours_worked: float
+    
+    @field_validator('user_id')
+    @classmethod
+    def validate_user_id(cls, v: str) -> str:
+        """Validate that user_id is not empty."""
+        if not v or not v.strip():
+            raise ValueError('user_id cannot be empty')
+        return v.strip()
+    
+    @field_validator('hours_worked')
+    @classmethod
+    def validate_hours(cls, v: float) -> float:
+        """Validate that hours_worked is positive."""
+        if v <= 0:
+            raise ValueError('hours_worked must be greater than 0')
+        return v
+
+
+class ChatCalculateResponse(BaseModel):
+    """Response schema for chat tariff calculation."""
+    
+    user_id: str
+    hours_worked: float
+    freelancer_name: str
+    explanation: str
+    calculation: TariffCalculationResponse
+

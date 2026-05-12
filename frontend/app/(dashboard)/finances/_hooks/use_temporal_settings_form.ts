@@ -85,12 +85,16 @@ export function useFinancialForm() {
 
     type RateStatus = "low" | "ok" | "high";
 
-    const rateStatus: RateStatus =
+    let rateStatus: RateStatus =
       rateDiff <= -10
         ? "low"
         : rateDiff >= 10
         ? "high"
     : "ok";
+
+    if (currentRate === 0 || isNaN(currentRate)) {
+      rateStatus = "ok";
+    }
 
     return {
       baseRate:        baseRate.toFixed(2),

@@ -1,13 +1,13 @@
 "use client";
 
+// Avatar UI and upload logic (POST). Handles preview, validation, and error state.
+
 import { useRef, useState } from "react";
 import { Camera, Loader2 } from "lucide-react";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { API_BASE } from "../_lib/api";
 
 const getFullUrl = (path: string | null | undefined) => {
   if (!path) return null;
-  // Quitamos la barra final de API_BASE y la inicial de path para unir con una sola /
   const base = API_BASE.replace(/\/$/, "");
   const cleanPath = path.replace(/^\//, "");
   return `${base}/${cleanPath}`;

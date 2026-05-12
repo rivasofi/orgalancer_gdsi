@@ -1,5 +1,7 @@
 "use client";
 
+// // Profile form UI. Renders all input fields and delegates logic to useProfileForm.
+
 import { Mail, Briefcase, Phone, Globe, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { useProfileForm } from "../_hooks/use_profile_form";
 
@@ -113,7 +115,7 @@ export default function ProfileForm({ profile, onUpdate }: { profile: ProfileDat
 
       <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-8 pt-6 border-t border-gray-100">
         <button type="button" onClick={actions.resetFields} disabled={state.saving} className="px-6 py-2.5 border border-gray-200 text-gray-600 text-sm font-medium rounded-xl hover:bg-gray-50 transition">
-          Cancel
+          Cancelar
         </button>
         <button type="button" onClick={actions.handleSave} disabled={state.saving} className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold rounded-xl hover:opacity-90 transition disabled:opacity-50">
           {state.saving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : "Guardar"}

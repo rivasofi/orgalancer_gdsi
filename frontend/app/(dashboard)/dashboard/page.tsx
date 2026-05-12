@@ -1,6 +1,7 @@
 import StatCard from "./_components/stat_card";
 import PendingTasks from "./_components/pending_tasks";
 import PaymentReminders from "./_components/payment_reminders";
+import SectionHeader from "./../_components/section_header";
 
 const stats = [
   {
@@ -57,21 +58,14 @@ export default function DashboardPage() {
   return (
     <>
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-violet-600">
-              <path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5L12 2Z" fill="currentColor" />
-              <path d="M19 15L19.8 17.2L22 18L19.8 18.8L19 21L18.2 18.8L16 18L18.2 17.2L19 15Z" fill="currentColor" opacity="0.6" />
-            </svg>
-            Dashboard
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">Resumen de tu negocio freelance</p>
-        </div>
+      <SectionHeader 
+        title="Dashboard" 
+        subtitle="Resumen de tu negocio freelance"
+      >
         <button className="bg-gradient-to-r from-violet-600 to-purple-500 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow hover:opacity-90 transition-opacity">
           Generar Presupuesto
         </button>
-      </div>
+      </SectionHeader>
 
       {/* Stat cards */}
       <div className="grid grid-cols-4 gap-4 mb-6">

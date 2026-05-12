@@ -1,9 +1,11 @@
 "use client";
 
+// Form state, validation, and profile update (PUT) logic for the profile tab.
+
 import { useState, useEffect } from "react";
 import { ProfileData } from "../_components/profile_form";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { API_BASE } from "../_lib/api";
 
 function splitName(full: string) {
   const parts = full.trim().split(/\s+/);

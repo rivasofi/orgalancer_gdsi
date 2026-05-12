@@ -7,8 +7,8 @@ import { API_BASE } from "../_lib/api";
 
 type FinancialConfig = {
   coin_type: string;
-  hourly_rate: number;
-  profit_margin: number;
+  hourly_rate: string;
+  profit_margin: string;
 };
 
 export type FinancialSettings = {
@@ -20,7 +20,10 @@ export type FinancialSettings = {
   setFormData: React.Dispatch<React.SetStateAction<FinancialConfig>>;
   originalData: FinancialConfig;
   setOriginalData: React.Dispatch<React.SetStateAction<FinancialConfig>>;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChange: (
+    field: string,
+    value: string
+  ) => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
 };
 
@@ -31,15 +34,14 @@ export function useFinancialForm() {
 
   const [formData, setFormData] = useState<FinancialConfig>({
     coin_type: "USD",
-    hourly_rate: 0,
-    profit_margin: 0,
+    hourly_rate: "",
+    profit_margin: "",
   });
 
-  const [originalData, setOriginalData] =
-  useState<FinancialConfig>({
+  const [originalData, setOriginalData] = useState<FinancialConfig>({
     coin_type: "USD",
-    hourly_rate: 0,
-    profit_margin: 0,
+    hourly_rate: "",
+    profit_margin: "",
   });
 
   useEffect(() => {
@@ -64,28 +66,23 @@ export function useFinancialForm() {
     .catch(console.error);
   }, [user]);
 
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const { name, value, type } = e.target;
-
-    setFormData({
-      ...formData,
-      [name]:
-        type === "number"
-          ? value === ""
-            ? 0
-            : Number(value)
-          : value,
-    });
+  function handleChange(field: string, value: string) {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+    setOriginalData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   }
+
   async function handleSubmit(
     e: React.FormEvent
   ) {
     e.preventDefault();
 
     try {
-      console.log("USER EN SUBMIT:", user);
       if (!user) throw new Error("Usuario no autenticado");
       const response = await fetch(
         `${API_BASE}/finances/${user?.id}`,
@@ -106,9 +103,11 @@ export function useFinancialForm() {
 
         throw new Error(text);
       }
-      setOriginalData(formData);
       setSaved(true);
+      setOriginalData(formData);
       setEditing(false);
+
+      window.dispatchEvent(new CustomEvent("financialSettingsUpdated", { detail: formData }));
 
       setTimeout(() => {
         setSaved(false);
@@ -129,5 +128,5 @@ export function useFinancialForm() {
     setOriginalData,
     handleChange,
     handleSubmit,
-    };
+  };
 }

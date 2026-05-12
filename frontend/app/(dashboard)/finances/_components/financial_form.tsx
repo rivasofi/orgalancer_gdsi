@@ -8,7 +8,7 @@ export function cn(...classes: (string | undefined)[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-function Input({
+export function Input({
   label,
   className,
   value,
@@ -32,7 +32,7 @@ function Input({
   );
 }
 
-function Button({ className, ...props }: React.ComponentProps<"button">) {
+export function Button({ className, ...props }: React.ComponentProps<"button">) {
   return (
     <button
       className={cn(
@@ -119,7 +119,9 @@ export default function FinancialForm(props: FinancialSettings) {
               type="number"
               min={0}
               value={props.formData.hourly_rate}
-              onChange={props.handleChange}
+              onChange={(e) =>
+                  props.setFormData({ ...props.formData, hourly_rate: e.target.value })
+                }
               placeholder="ej: 25"
             />
 
@@ -130,7 +132,9 @@ export default function FinancialForm(props: FinancialSettings) {
               min={0}
               max={99}
               value={props.formData.profit_margin}
-              onChange={props.handleChange}
+              onChange={(e) =>
+                  props.setFormData({ ...props.formData, profit_margin: e.target.value })
+                }
               placeholder="ej: 30"
             />
           </div>

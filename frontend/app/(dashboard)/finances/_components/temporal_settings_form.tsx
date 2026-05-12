@@ -26,13 +26,6 @@ export function FinancesSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold mb-1">
-          Configuración Financiera
-        </h2>
-        <p className="text-sm text-gray-500 mb-6">
-          Define tu moneda, tarifas y objetivos económicos
-        </p>
-
         <form className="space-y-6">
           <div>
             <label className="text-sm font-medium">Moneda</label>

@@ -17,7 +17,7 @@ export interface ProfileData {
   phone?: string | null;
   country?: string | null;
   specialty?: string | null;
-  years_experience?: string | null;
+  years_of_experience?: string | null;
   completion_percentage: number;
 }
 
@@ -118,7 +118,7 @@ export default function ProfileForm({ profile, onUpdate }: { profile: ProfileDat
           Cancelar
         </button>
         <button type="button" onClick={actions.handleSave} disabled={state.saving} className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold rounded-xl hover:opacity-90 transition disabled:opacity-50">
-          {state.saving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : "Guardar"}
+          {state.saving ? <><Loader2 size={14} className="animate-spin" /> Guardando…</> : "Guardar"}
         </button>
       </div>
     </div>

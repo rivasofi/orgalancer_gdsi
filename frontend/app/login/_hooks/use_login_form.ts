@@ -33,6 +33,8 @@ export function useLoginForm() {
         return set_error(data.error || "Email o contraseña incorrectos");
       }
 
+      localStorage.setItem("user", JSON.stringify(data)); 
+
       set_success(true);
       setTimeout(() => {
         router.push("/dashboard");

@@ -1,0 +1,30 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Sidebar from "./_components/sidebar";
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (!user) {
+      router.push("/login");
+    } else {
+      setAuthorized(true);
+    }
+  }, [router]);
+
+  if (!authorized) return null;
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-white">
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto p-8">
+        {children}
+      </main>
+    </div>
+  );
+}

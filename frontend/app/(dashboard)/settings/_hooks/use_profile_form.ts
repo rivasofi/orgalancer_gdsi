@@ -21,7 +21,7 @@ export function useProfileForm(profile: ProfileData, onUpdate: (updated: Partial
   const [phone, setPhone] = useState(profile.phone ?? "");
   const [country, setCountry] = useState(profile.country ?? "");
   const [specialty, setSpecialty] = useState(profile.specialty ?? "");
-  const [yearsExp, setYearsExp] = useState(profile.years_experience ?? "");
+  const [yearsExp, setYearsExp] = useState(profile.years_of_experience ?? "");
 
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -34,7 +34,7 @@ export function useProfileForm(profile: ProfileData, onUpdate: (updated: Partial
     setPhone(profile.phone ?? "");
     setCountry(profile.country ?? "");
     setSpecialty(profile.specialty ?? "");
-    setYearsExp(profile.years_experience ?? "");
+    setYearsExp(profile.years_of_experience ?? "");
     setProfession(profile.profession ?? "");
   }, [profile]);
 
@@ -45,7 +45,7 @@ export function useProfileForm(profile: ProfileData, onUpdate: (updated: Partial
     setPhone(profile.phone ?? "");
     setCountry(profile.country ?? "");
     setSpecialty(profile.specialty ?? "");
-    setYearsExp(profile.years_experience ?? "");
+    setYearsExp(profile.years_of_experience ?? "");
     setError(null);
   };
 
@@ -66,7 +66,7 @@ export function useProfileForm(profile: ProfileData, onUpdate: (updated: Partial
         phone: phone.trim() || null,
         country: country || null,
         specialty: specialty.trim() || null,
-        years_experience: yearsExp || null,
+        years_of_experience: yearsExp || null,
       };
 
       const res = await fetch(`${API_BASE}/users/profile/${profile.id}`, {
@@ -78,9 +78,10 @@ export function useProfileForm(profile: ProfileData, onUpdate: (updated: Partial
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         const detail = body?.detail;
+        const clean = (s: string) => s.replace(/^value error,\s*/i, "");
         const msg = Array.isArray(detail)
-          ? detail.map((d: { msg: string }) => d.msg).join(", ")
-          : (detail ?? "Failed to save changes.");
+          ? detail.map((d: { msg: string }) => clean(d.msg)).join(", ")
+          : clean(detail ?? "No se pudieron guardar los cambios.");
         throw new Error(msg);
       }
 
@@ -97,11 +98,10 @@ export function useProfileForm(profile: ProfileData, onUpdate: (updated: Partial
           );
         }
       } catch {}
-
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3500);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+      setError(err instanceof Error ? err.message : "Ocurrió un error inesperado.");
     } finally {
       setSaving(false);
     }

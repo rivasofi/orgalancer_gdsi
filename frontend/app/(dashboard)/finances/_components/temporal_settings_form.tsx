@@ -33,7 +33,7 @@ export function FinancesSettings() {
               <select
                 value={formData.coin_type}
                 onChange={(e) => handleChange("coin_type", e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-purple-500 outline-none transition-all cursor-pointer"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm  text-gray-900 focus:ring-2 focus:ring-purple-500 outline-none transition-all cursor-pointer"
               >
                 {["USD", "EUR", "GBP", "ARS", "MXN", "CLP", "COP", "BRL"].map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -50,7 +50,7 @@ export function FinancesSettings() {
                   type="number"
                   value={formData.desiredSalary}
                   onChange={(e) => handleChange("desiredSalary", e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 pl-8 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 pl-8 text-sm  text-gray-900 focus:ring-2 focus:ring-purple-500 outline-none"
                   placeholder="0.00"
                 />
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">$</span>
@@ -66,7 +66,7 @@ export function FinancesSettings() {
                   type="number"
                   value={formData.availableHours}
                   onChange={(e) => handleChange("availableHours", e.target.value)}
-                  className="flex-1 bg-gray-50 border border-gray-200 rounded-l-xl p-2.5 text-sm focus:ring-2 focus:ring-purple-500 outline-none transition-all"
+                  className="flex-1 bg-gray-50 border border-gray-200 rounded-l-xl p-2.5 text-sm  text-gray-900 focus:ring-2 focus:ring-purple-500 outline-none transition-all"
                 />
                 <select
                   value={formData.hoursMode}
@@ -88,7 +88,7 @@ export function FinancesSettings() {
                   type="number"
                   value={formData.profit_margin}
                   onChange={(e) => handleChange("profit_margin", e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 pr-10 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 pr-10 text-sm  text-gray-900 focus:ring-2 focus:ring-purple-500 outline-none"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs">%</span>
               </div>

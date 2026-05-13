@@ -32,8 +32,8 @@ class FinancialConfig(BaseModel):
     @field_validator("hourly_rate")
     @classmethod
     def validate_rate(cls, v):
-        if v <= 0:
-            raise ValueError("La tarifa horaria debe ser un valor positivo mayor a cero")
+        if v < 0:
+            raise ValueError("La tarifa horaria debe ser un valor positivo")
         return v
 
     @field_validator("profit_margin")

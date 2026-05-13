@@ -46,7 +46,6 @@ export function useFinancialForm() {
 
   useEffect(() => {
     if (!user) return;
-    console.log(formData);
     fetch(`${API_BASE}/finances/${user?.id}`)
     .then(async (res) => {
       if (res.status === 404) return null;
@@ -61,17 +60,12 @@ export function useFinancialForm() {
       if (!data) return;
 
       setFormData(data);
-      setOriginalData(data);
     })
     .catch(console.error);
   }, [user]);
 
   function handleChange(field: string, value: string) {
     setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-    setOriginalData((prev) => ({
       ...prev,
       [field]: value,
     }));

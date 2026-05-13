@@ -94,7 +94,9 @@ class TestClaudeChatService:
             # Verify calculation
             calc = result['calculation']
             assert calc['total_usd'] == 604.0  # 75.50 * 8
-            assert calc['exchange_rate'] == 870.50
+            # Note: DolarApi returns Dólar Blue which is ~1405.0
+            # (average of compra: 1395 and venta: 1415)
+            assert calc['exchange_rate'] == 1405.0
             
             # Verify explanation exists
             assert len(result['explanation']) > 0

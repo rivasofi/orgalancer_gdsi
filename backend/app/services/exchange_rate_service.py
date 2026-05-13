@@ -53,10 +53,13 @@ class ExchangeRateService:
         """
         Fetch exchange rates from DolarApi.com.
         
+        For ARS (Argentine Peso), prioritizes APPI (dólar para personas físicas no residentes).
+        For other currencies, uses the first available rate.
+        
         Returns:
             dict: Mapping of currency pairs to rates
             {
-                'USD_ARS': {'compra': 870, 'venta': 880, ...},
+                'USD_ARS': {'compra': 870, 'venta': 880, 'source': 'Dólar APPI', ...},
                 'USD_EUR': {'compra': 0.92, 'venta': 0.93, ...},
                 ...
             }
@@ -77,6 +80,8 @@ class ExchangeRateService:
                 
                 # Process data into our format
                 rates_dict = {}
+                rates_by_type = {}  # Keep track of all USD→ARS rates to prefer oficial
+                
                 for rate_data in data:
                     casa = rate_data.get('casa', 'Unknown')
                     compra = rate_data.get('compra', 0)
@@ -87,15 +92,33 @@ class ExchangeRateService:
                     # Use average of compra/venta as the rate
                     avg_rate = (compra + venta) / 2 if compra and venta else 0
                     
-                    key = f"USD_{moneda}"
-                    if key not in rates_dict:
-                        rates_dict[key] = {
+                    # DolarApi returns USD→ARS rates with different 'casa' (source)
+                    if moneda.upper() == 'USD' and avg_rate > 0:
+                        rates_by_type[casa] = {
                             'rate': avg_rate,
                             'source': casa,
                             'compra': compra,
                             'venta': venta,
                             'nombre': nombre
                         }
+                
+                # Prioritize official rate (APPI is the official rate)
+                # Preference: oficial > mayorista > tarjeta > blue
+                preferred_order = ['oficial', 'mayorista', 'tarjeta', 'blue']
+                selected_rate = None
+                
+                for preferred_casa in preferred_order:
+                    if preferred_casa in rates_by_type:
+                        selected_rate = rates_by_type[preferred_casa]
+                        break
+                
+                # If no preferred type found, use first available
+                if not selected_rate:
+                    selected_rate = list(rates_by_type.values())[0] if rates_by_type else None
+                
+                if selected_rate:
+                    rates_dict['USD_ARS'] = selected_rate
+                    logger.info(f"💵 Using {selected_rate['nombre']} for ARS (rate: ${selected_rate['rate']:.2f})")
                 
                 # Cache the result
                 self.cache.set('dolarapi_rates', rates_dict)

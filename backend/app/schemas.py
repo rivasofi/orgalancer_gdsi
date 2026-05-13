@@ -142,6 +142,7 @@ class TariffBreakdown(BaseModel):
     currency: Optional[str] = None
     formula: Optional[str] = None
     note: Optional[str] = None
+    source: Optional[str] = None
 
 
 class TariffCalculationResponse(BaseModel):

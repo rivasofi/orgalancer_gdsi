@@ -47,10 +47,10 @@ class TestTariffCalculationService:
     
     @pytest.mark.asyncio
     async def test_calculate_tariff_exchange_rate_not_found(self, db: Session):
-        """Test calculating tariff when exchange rate doesn't exist (no DolarApi, no DB)."""
+        """Test calculating tariff when exchange rate doesn't exist (DolarApi only)."""
         service = TariffCalculationService()
         
-        # Create freelancer without exchange rate
+        # Create freelancer with unsupported currency
         freelancer = FreelancerProfile(
             user_id='freelancer_eur',
             hourly_rate=75.50,
@@ -60,17 +60,17 @@ class TestTariffCalculationService:
         db.add(freelancer)
         db.commit()
         
-        # This should fail (DolarApi will fail, and there's no cached rate in DB)
+        # This should fail (DolarApi only supports ARS and USD)
         with pytest.raises(ValueError) as exc_info:
             await service.calculate_tariff(db, 'freelancer_eur', 8.0)
         
-        # Error should mention DolarApi or that rate not found
+        # Error should mention currency not supported or dolarapi error
         error_msg = str(exc_info.value).lower()
-        assert "rate" in error_msg or "dolarapi" in error_msg
+        assert "not supported" in error_msg or "dolarapi" in error_msg or "eur" in error_msg
     
     @pytest.mark.asyncio
-    async def test_calculate_tariff_with_db_fallback(self, db: Session):
-        """Test that tariff uses cached rate from DB when available."""
+    async def test_calculate_tariff_with_dolarapi(self, db: Session):
+        """Test that tariff uses DolarApi oficial (APPI) rate for ARS."""
         service = TariffCalculationService()
         
         # Create ARS freelancer
@@ -81,25 +81,18 @@ class TestTariffCalculationService:
             country='Argentina'
         )
         db.add(freelancer)
-        
-        # Create cached exchange rate in DB
-        rate = ExchangeRate(
-            from_currency='USD',
-            to_currency='ARS',
-            rate=870.50
-        )
-        db.add(rate)
         db.commit()
         
-        # Calculate tariff (will try DolarApi, fail, then use DB cached rate)
+        # Calculate tariff (will use DolarApi Dólar Blue rate for ARS)
         result = await service.calculate_tariff(db, 'freelancer_ars_db', 8.0)
         
         assert result['user_id'] == 'freelancer_ars_db'
         assert result['hours_worked'] == 8.0
         assert result['hourly_rate_usd'] == 75.50
         assert result['currency'] == 'ARS'
-        # Should use the DB rate
-        assert result['exchange_rate'] == 870.50
+        # Should use the DolarApi Dólar Blue rate which is ~1405.0
+        # (average of compra: 1395 and venta: 1415)
+        assert result['exchange_rate'] == 1405.0
     
     @pytest.mark.asyncio
     async def test_calculate_tariff_invalid_hours(self, db: Session):
@@ -181,6 +174,7 @@ class TestTariffCalculationService:
         assert 'total_local' in breakdown
         assert 'currency' in breakdown
         assert 'source' in breakdown
-        # Source should indicate either DolarApi or cached
-        assert 'dolarapi' in breakdown['source'].lower() or 'cached' in breakdown['source'].lower()
+        # Source should indicate Dólar Blue
+        source_lower = breakdown['source'].lower()
+        assert 'blue' in source_lower
 

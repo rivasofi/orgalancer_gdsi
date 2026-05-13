@@ -14,52 +14,63 @@ DOLARAPI_BASE_URL = "https://dolarapi.com/v1"
 class TariffCalculationService:
     """Service for calculating freelancer tariffs with currency conversion."""
     
-    async def get_exchange_rate_from_dolarapi(self, to_currency: str) -> float:
+    async def get_exchange_rate_from_dolarapi(self, to_currency: str) -> dict:
         """
-        Get real-time exchange rate from DolarApi.com.
+        Get real-time exchange rate from DolarApi.com (Dólar Blue).
+        
+        Uses /v1/dolares/blue endpoint for Argentine Peso (ARS).
+        Dólar Blue is the parallel market rate for USD→ARS.
         
         Args:
-            to_currency: Target currency (e.g., 'ARS', 'EUR', 'BRL')
+            to_currency: Target currency (e.g., 'ARS')
         
         Returns:
-            float: Exchange rate (USD → to_currency)
+            dict: {'rate': float, 'source': str, 'nombre': str}
         
         Raises:
-            Exception: If API fails or currency not found
+            Exception: If API fails or currency not supported
         """
         try:
+            # Only support ARS (uses Dólar Blue)
+            if to_currency.upper() != 'ARS':
+                raise ValueError(f"Currency {to_currency} not supported (only ARS with Dólar Blue)")
+            
             async with httpx.AsyncClient() as client:
+                # Get Dólar Blue directly from the endpoint
                 response = await client.get(
-                    f"{DOLARAPI_BASE_URL}/dolares",
+                    f"{DOLARAPI_BASE_URL}/dolares/blue",
                     timeout=10
                 )
                 response.raise_for_status()
                 
-                data = response.json()
-                logger.info(f"✅ Fetched rates from DolarApi for {to_currency}")
+                rate_data = response.json()
+                logger.info(f"✅ Fetched Dólar Blue from DolarApi")
                 
-                # Find the rate for this currency
-                for rate_data in data:
-                    if rate_data.get('moneda', '').upper() == to_currency.upper():
-                        compra = rate_data.get('compra', 0)
-                        venta = rate_data.get('venta', 0)
-                        # Use average of compra/venta
-                        avg_rate = (compra + venta) / 2 if compra and venta else 0
-                        
-                        if avg_rate > 0:
-                            logger.info(f"🔄 Exchange rate USD→{to_currency}: {avg_rate}")
-                            return avg_rate
+                # Parse single rate object
+                compra = rate_data.get('compra', 0)
+                venta = rate_data.get('venta', 0)
+                avg_rate = (compra + venta) / 2 if compra and venta else 0
                 
-                raise ValueError(f"Currency {to_currency} not found in DolarApi")
+                if avg_rate <= 0:
+                    raise ValueError(f"Invalid rate data from DolarApi: compra={compra}, venta={venta}")
+                
+                selected_rate = {
+                    'rate': avg_rate,
+                    'source': rate_data.get('casa', 'blue'),
+                    'nombre': rate_data.get('nombre', 'Dólar Blue')
+                }
+                
+                logger.info(f"💵 Using {selected_rate['nombre']}: ${selected_rate['rate']:.2f} ARS/USD")
+                return selected_rate
         
         except httpx.TimeoutException:
-            logger.error(f"❌ DolarApi timeout for {to_currency}")
+            logger.error(f"❌ DolarApi timeout")
             raise
         except Exception as e:
-            logger.error(f"❌ Failed to fetch rate from DolarApi: {e}")
+            logger.error(f"❌ Failed to fetch Dólar Blue from DolarApi: {e}")
             raise
     
-    def get_exchange_rate_from_db(self, db: Session, to_currency: str) -> float:
+    def get_exchange_rate_from_db(self, db: Session, to_currency: str) -> dict:
         """
         Get exchange rate from database (fallback).
         
@@ -68,7 +79,7 @@ class TariffCalculationService:
             to_currency: Target currency
         
         Returns:
-            float: Exchange rate or None
+            dict: {'rate': float, 'source': str} or None
         """
         try:
             rate = db.query(ExchangeRate).filter(
@@ -78,39 +89,26 @@ class TariffCalculationService:
             
             if rate:
                 logger.info(f"📦 Using cached rate from DB: USD→{to_currency} = {rate.rate}")
-                return rate.rate
+                return {'rate': rate.rate, 'source': 'Cached from Database'}
             
             return None
         except Exception as e:
             logger.error(f"❌ Error getting rate from DB: {e}")
             return None
     
-    async def get_exchange_rate(self, db: Session, to_currency: str) -> float:
+    async def get_exchange_rate(self, db: Session, to_currency: str) -> dict:
         """
-        Get exchange rate with fallback strategy.
+        Get exchange rate from DolarApi only (real-time).
         
-        1. Try DolarApi (real-time)
-        2. Fallback to DB (cached)
-        3. Error if both fail
+        For ARS, prioritizes APPI (Dólar APPI).
+        
+        Returns dict with:
+            - rate: float
+            - source: str (e.g., 'Oficial', 'Mayorista')
         """
-        # Try DolarApi first (real-time)
-        try:
-            rate = await self.get_exchange_rate_from_dolarapi(to_currency)
-            return rate
-        except Exception as e:
-            logger.warning(f"⚠️  DolarApi failed: {e}. Trying fallback to DB...")
-            
-            # Fallback to DB
-            db_rate = self.get_exchange_rate_from_db(db, to_currency)
-            if db_rate:
-                return db_rate
-            
-            # Both failed
-            raise ValueError(
-                f"Could not get exchange rate for {to_currency}. "
-                f"DolarApi unavailable and no cached rate in DB. "
-                f"Please sync rates using POST /api/rates/sync"
-            )
+        # Use DolarApi only (real-time, no fallback to database)
+        rate_info = await self.get_exchange_rate_from_dolarapi(to_currency)
+        return rate_info
     
     async def calculate_tariff(
         self,
@@ -185,7 +183,9 @@ class TariffCalculationService:
         
         # Get exchange rate from DolarApi (with fallback to DB)
         try:
-            exchange_rate_value = await self.get_exchange_rate(db, freelancer.currency)
+            rate_info = await self.get_exchange_rate(db, freelancer.currency)
+            exchange_rate_value = rate_info['rate']
+            rate_source = rate_info['source']
         except Exception as e:
             raise ValueError(str(e))
         
@@ -200,7 +200,8 @@ class TariffCalculationService:
         
         logger.info(
             f"✅ Calculated tariff for {user_id}: "
-            f"${total_usd} USD = {freelancer.currency} {total_local}"
+            f"${total_usd} USD = {freelancer.currency} {total_local} "
+            f"(using {rate_source})"
         )
         
         return {
@@ -221,7 +222,7 @@ class TariffCalculationService:
                 'total_local': float(total_local),
                 'currency': freelancer.currency,
                 'formula': f"${hourly_rate_usd} USD/hr × {rate} rate × {hours}h = {freelancer.currency} {total_local}",
-                'source': 'DolarApi.com (real-time) or cached'
+                'source': rate_source
             }
         }
     

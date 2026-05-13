@@ -111,7 +111,7 @@ class ClaudeChatService:
             hours_worked: Number of hours
         
         Returns:
-            str: Claude's explanation
+            str: Claude's explanation (or fallback if API unavailable)
         """
         # Build the prompt for Claude
         prompt = self._build_explanation_prompt(
@@ -141,8 +141,17 @@ class ClaudeChatService:
             return explanation
         
         except Exception as e:
-            logger.error(f"❌ Claude API error: {e}")
-            raise Exception(f"Failed to get explanation from Claude: {str(e)}")
+            logger.error(f"⚠️ Claude API error: {e}")
+            # Fallback explanation when Claude is unavailable
+            total_usd = tariff_result['total_usd']
+            total_local = tariff_result['total_local']
+            exchange_rate = tariff_result['exchange_rate']
+            currency = freelancer.currency
+            
+            fallback = f"""Based on your hourly rate of ${freelancer.hourly_rate} USD/hour and working {hours_worked} hours, your total earnings are ${total_usd:.2f} USD (or {total_local:,.2f} {currency} at the current exchange rate of {exchange_rate:.2f}). This calculation includes all applicable taxes and local conversions for your country."""
+            
+            logger.info(f"📝 Using fallback explanation (Claude unavailable)")
+            return fallback
     
     def _build_explanation_prompt(
         self,

@@ -138,6 +138,10 @@ export default function FinancialForm(props: FinancialSettings) {
               placeholder="ej: 30"
             />
           </div>
+          
+          {props.error && (
+            <p className="text-red-500 text-sm">{props.error}</p>
+          )}
 
           {props.saved && (
             <div className="flex items-center gap-2 text-emerald-600 text-sm">

@@ -25,6 +25,7 @@ export type FinancialSettings = {
     value: string
   ) => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
+  error: string | null;
 };
 
 export function useFinancialForm() {
@@ -43,6 +44,8 @@ export function useFinancialForm() {
     hourly_rate: "",
     profit_margin: "",
   });
+  
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -57,12 +60,21 @@ export function useFinancialForm() {
       return res.json();
     })
     .then((data) => {
-      if (!data) return;
-
-      setFormData(data);
+      if (data) {
+          setFormData({
+          coin_type: data.coin_type ?? "USD",
+          hourly_rate: data.hourly_rate ?? "",
+          profit_margin: data.profit_margin ?? "",
+        });
+        setOriginalData({
+          coin_type: data.coin_type ?? "USD",
+          hourly_rate: data.hourly_rate ?? "",
+          profit_margin: data.profit_margin ?? "",
+        });
+      }
     })
     .catch(console.error);
-  }, [user]);
+  }, [user?.id]);
 
   function handleChange(field: string, value: string) {
     setFormData((prev) => ({
@@ -78,14 +90,21 @@ export function useFinancialForm() {
 
     try {
       if (!user) throw new Error("Usuario no autenticado");
+        if (!formData.hourly_rate || !formData.profit_margin) {
+          setError("Todos los campos son requeridos");
+          return;
+        }
+        setError(null); 
       const response = await fetch(
         `${API_BASE}/finances/${user?.id}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            coin_type: formData.coin_type,
+            hourly_rate: parseFloat(formData.hourly_rate),
+            profit_margin: parseFloat(formData.profit_margin),
+          }),
         }
       );
 
@@ -122,5 +141,6 @@ export function useFinancialForm() {
     setOriginalData,
     handleChange,
     handleSubmit,
+    error,
   };
 }

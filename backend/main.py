@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.routers import auth, user_profile, financial_profile
 from app.database import engine, Base
+from app.routers import auth, clients
 import app.models  # noqa: F401 — necesario para que Base registre los modelos
 import os
 
@@ -26,6 +27,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(auth.router)
 app.include_router(user_profile.router)
 app.include_router(financial_profile.router)
+app.include_router(clients.router)
 
 @app.get("/health")
 def health():

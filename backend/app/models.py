@@ -1,44 +1,32 @@
-"""SQLAlchemy models for the application."""
-
-from sqlalchemy import Column, Integer, String, Float, DateTime, UniqueConstraint
-from sqlalchemy.sql import func
-from datetime import datetime
+import uuid
+from sqlalchemy import Column, String, Float, ForeignKey
+from sqlalchemy.orm import relationship
 from app.database import Base
 
 
-class FreelancerProfile(Base):
-    """Model for freelancer financial configuration."""
-    
-    __tablename__ = "freelancer_profiles"
+class User(Base):
+    __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String, unique=True, index=True, nullable=False)
-    hourly_rate = Column(Float, nullable=False)
-    currency = Column(String, default="USD", nullable=False)
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    full_name = Column(String, nullable=False)
+    email = Column(String, unique=True, nullable=False, index=True)
+    profession = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    avatar_url = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
     country = Column(String, nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    specialty = Column(String, nullable=True)
+    years_of_experience = Column(String, nullable=True)
 
-    def __repr__(self):
-        return f"<FreelancerProfile(user_id={self.user_id}, hourly_rate={self.hourly_rate} {self.currency})>"
+    financial_config = relationship("FinancialConfiguration", back_populates="user", uselist=False)
 
+class FinancialConfiguration(Base):
+    __tablename__ = "financial_configurations"
 
-class ExchangeRate(Base):
-    """Model for storing exchange rates between currencies."""
-    
-    __tablename__ = "exchange_rates"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id"), unique=True, nullable=False, index=True)
+    coin_type = Column(String, nullable=False)
+    hourly_rate = Column(Float, nullable=False, default=0.0)
+    profit_margin = Column(Float, nullable=False, default=0.0)
 
-    id = Column(Integer, primary_key=True, index=True)
-    from_currency = Column(String, nullable=False, index=True)
-    to_currency = Column(String, nullable=False, index=True)
-    rate = Column(Float, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-
-    # Unique constraint on currency pair
-    __table_args__ = (
-        UniqueConstraint('from_currency', 'to_currency', name='uq_currency_pair'),
-    )
-
-    def __repr__(self):
-        return f"<ExchangeRate({self.from_currency}/{self.to_currency} = {self.rate})>"
+    user = relationship("User", back_populates="financial_config")

@@ -1,72 +1,32 @@
-"""Main FastAPI application entry point."""
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import create_tables
-from app.routers import freelancer, rates, chat
+from fastapi.staticfiles import StaticFiles
+from app.routers import auth, user_profile, financial_profile
+from app.database import engine, Base
+import app.models  # noqa: F401 — necesario para que Base registre los modelos
 import os
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+Base.metadata.create_all(bind=engine)  # Crea las tablas si no existen
 
-# Create FastAPI app
-app = FastAPI(
-    title="OrgaLancer API",
-    description="API for freelancer financial management and AI assistant integration",
-    version="0.1.0"
-)
+if not os.path.exists("static/avatars"):
+    os.makedirs("static/avatars", exist_ok=True)
 
-# Add CORS middleware
+app = FastAPI(title="Orgalancer API")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, set specific origins
+    allow_origins=["http://localhost:3000"],  # En prod: dominio de Vercel
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(freelancer.router)
-app.include_router(rates.router)
-app.include_router(chat.router)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
-@app.on_event("startup")
-async def startup_event():
-    """Create database tables on startup."""
-    create_tables()
-    print("✅ Database tables created")
-
-
-@app.get("/")
-async def root():
-    """Root endpoint - API is running."""
-    return {
-        "message": "OrgaLancer API",
-        "version": "0.1.0",
-        "status": "running"
-    }
-
+app.include_router(auth.router)
+app.include_router(user_profile.router)
+app.include_router(financial_profile.router)
 
 @app.get("/health")
-async def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy"}
-
-
-if __name__ == "__main__":
-    import uvicorn
-    
-    # Get configuration from environment
-    host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", 8000))
-    debug = os.getenv("DEBUG", "False").lower() == "true"
-    
-    # Run the server
-    uvicorn.run(
-        "main:app",
-        host=host,
-        port=port,
-        reload=debug
-    )
+def health():
+    return {"status": "ok"}

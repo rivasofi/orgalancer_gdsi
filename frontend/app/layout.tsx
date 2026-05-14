@@ -1,9 +1,15 @@
-import type { Metadata } from 'next';
-import './globals.css';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
-  title: 'OrgaLancer - Tariff Calculator',
-  description: 'Calculate your freelance tariff with AI explanations',
+  title: "Orgalancer",
+  description: "Plataforma para freelancers",
 };
 
 export default function RootLayout({
@@ -12,10 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-        {children}
-      </body>
+    <html lang="es" className={inter.variable}>
+      <body>{children}</body>
     </html>
   );
 }

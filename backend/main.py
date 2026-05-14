@@ -1,9 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.routers import auth, user_profile, financial_profile
+from app.routers import auth, user_profile, financial_profile, clients
 from app.database import engine, Base
-from app.routers import auth, clients
 import app.models  # noqa: F401 — necesario para que Base registre los modelos
 import os
 

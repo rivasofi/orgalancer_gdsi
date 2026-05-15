@@ -17,3 +17,8 @@ def create_client(client: ClientCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new)
     return new
+
+@router.get("", response_model=list[ClientResponse])
+def list_clients(db: Session = Depends(get_db)):
+    clients = db.query(Client).all()
+    return clients

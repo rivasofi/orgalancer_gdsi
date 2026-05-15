@@ -28,3 +28,8 @@ def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=500, detail="Error al crear el proyecto: " + str(e))
     return new
+
+@router.get("/", response_model=list[ProjectResponse])
+def list_projects(db: Session = Depends(get_db)):
+    projects = db.query(Project).all()
+    return projects

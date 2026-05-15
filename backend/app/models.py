@@ -18,6 +18,7 @@ class User(Base):
     years_of_experience = Column(String, nullable=True)
 
     financial_config = relationship("FinancialConfiguration", back_populates="user", uselist=False)
+    projects = relationship("Project", back_populates="user")
 
 class FinancialConfiguration(Base):
     __tablename__ = "financial_configurations"

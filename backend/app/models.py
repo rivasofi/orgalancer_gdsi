@@ -43,6 +43,8 @@ class Client(Base):
     website = Column(String, nullable=True)
     extra_info = Column(String, nullable=True)
 
+    projects = relationship("Project", back_populates="client")
+
 class Project(Base):
     __tablename__ = "projects"
 

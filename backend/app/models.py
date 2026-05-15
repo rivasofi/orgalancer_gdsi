@@ -2,6 +2,7 @@ import uuid
 from sqlalchemy import Column, String, Float, ForeignKey, Date, Numeric, Enum
 from sqlalchemy.orm import relationship
 from app.database import Base
+import enum
 
 class User(Base):
     __tablename__ = "users"
@@ -45,6 +46,16 @@ class Client(Base):
 
     projects = relationship("Project", back_populates="client")
 
+class ContractType(enum.Enum):
+    hourly = "hourly"
+    fixed_price = "fixed_price"
+    retainer = "retainer"
+
+class ProjectState(enum.Enum):
+    active = "active"
+    completed = "completed"
+    cancelled = "cancelled"
+
 class Project(Base):
     __tablename__ = "projects"
 
@@ -52,10 +63,10 @@ class Project(Base):
     user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
     client_id = Column(String, ForeignKey("clients.id"), nullable=False, index=True)
     name = Column(String, nullable=False)
-    contract_type = Column( Enum("hourly", "fixed_price", "retainer", name="contract_type"), nullable=False)
+    contract_type = Column( Enum(ContractType), nullable=False)
     estimated_budget = Column(Numeric(10, 2), nullable=False, default=0)
     deadline = Column(Date, nullable=True)
-    state = Column( Enum("active", "completed", "cancelled", name="project_state"), nullable=False, default="active")
+    state = Column( Enum(ProjectState), nullable=False, default="active")
 
     user = relationship("User", back_populates="projects")
     client = relationship("Client", back_populates="projects")

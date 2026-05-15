@@ -36,8 +36,9 @@ class Client(Base):
     __tablename__ = "clients"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, nullable=False, index=True)
     name = Column(String, nullable=False)
-    email = Column(String, unique=True, nullable=False, index=True)
+    email = Column(String, nullable=False, index=True)
     client_type = Column(String, nullable=False)
     phone_number = Column(String, nullable=True)
     address = Column(String, nullable=True)

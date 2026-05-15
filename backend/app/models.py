@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Float, ForeignKey
+from sqlalchemy import Column, String, Float, ForeignKey, Date, Numeric, Enum
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -41,3 +41,18 @@ class Client(Base):
     address = Column(String, nullable=True)
     website = Column(String, nullable=True)
     extra_info = Column(String, nullable=True)
+
+class Project(Base):
+    __tablename__ = "projects"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    client_id = Column(String, ForeignKey("clients.id"), nullable=False, index=True)
+    name = Column(String, nullable=False)
+    contract_type = Column( Enum("hourly", "fixed_price", "retainer", name="contract_type"), nullable=False)
+    estimated_budget = Column(Numeric(10, 2), nullable=False, default=0)
+    deadline = Column(Date, nullable=True)
+    state = Column( Enum("active", "completed", "cancelled", name="project_state"), nullable=False, default="active")
+
+    user = relationship("User", back_populates="projects")
+    client = relationship("Client", back_populates="projects")

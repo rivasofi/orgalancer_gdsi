@@ -24,3 +24,21 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json(data, { status: 201 });
 }
+
+export async function GET() {
+  const response = await fetch(`${process.env.API_URL}/clients`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    return NextResponse.json(
+      { error: "Error al obtener los clientes" },
+      { status: response.status }
+    );
+  }
+
+  return NextResponse.json(data);
+}

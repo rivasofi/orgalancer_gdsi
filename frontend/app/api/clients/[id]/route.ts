@@ -5,10 +5,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  const token = req.headers.get("Authorization");
 
   const response = await fetch(`${process.env.API_URL}/clients/${id}`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Authorization": token || "",
+    },
   });
 
   const data = await response.json();

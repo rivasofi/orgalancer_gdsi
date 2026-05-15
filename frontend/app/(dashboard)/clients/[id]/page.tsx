@@ -23,7 +23,16 @@ export default function ClientDetailPage() {
   useEffect(() => {
     const fetchClient = async () => {
       try {
-        const res = await fetch(`/api/clients/${params.id}`);
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/api/clients/${params.id}`, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        if (res.status === 401) {
+          router.push("/login");
+          return;
+        }
         const data = await res.json();
         if (res.ok) setClient(data);
       } finally {

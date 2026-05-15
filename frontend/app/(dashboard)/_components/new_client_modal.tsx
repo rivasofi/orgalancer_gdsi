@@ -62,9 +62,14 @@ export default function NewClientModal({ onClose, onSuccess }: Props) {
 
         setLoading(true);
         try {
+            const token = localStorage.getItem("token");
+
             const res = await fetch("/api/clients", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
                 body: JSON.stringify(form),
             });
 

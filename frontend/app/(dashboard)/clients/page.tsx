@@ -23,9 +23,23 @@ export default function ClientsPage() {
 
   const fetchClients = async () => {
     try {
-      const res = await fetch("/api/clients");
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("/api/clients", {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (res.status === 401) {
+        router.push("/login");
+        return;
+      }
+
       const data = await res.json();
       if (res.ok) setClients(data);
+    } catch (error) {
+      console.error("Error cargando clientes", error);
     } finally {
       setLoading(false);
     }

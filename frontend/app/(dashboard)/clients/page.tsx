@@ -22,6 +22,7 @@ export default function ClientsPage() {
   const [modalAbierto, setOpenModal] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
+  const [clientToEdit, setClientToEdit] = useState<Client | null>(null);
 
   const fetchClients = async () => {
     try {
@@ -149,7 +150,10 @@ export default function ClientsPage() {
                         Ver
                       </button>
                       <button
-                        onClick={() => console.log("No implementado")}
+                        onClick={() => {
+                          setClientToEdit(client);
+                          setOpenModal(true);
+                        }}
                         className="text-sm font-semibold text-violet-700 hover:text-blue-800 transition-colors"
                       >
                         Editar
@@ -166,11 +170,16 @@ export default function ClientsPage() {
       {/* Modal */}
       {modalAbierto && (
         <NewClientModal
-          onClose={() => setOpenModal(false)}
+          onClose={() => {
+            setOpenModal(false);
+            setClientToEdit(null);
+          }}
           onSuccess={() => {
             setOpenModal(false);
+            setClientToEdit(null);
             fetchClients();
           }}
+          clientToEdit={clientToEdit}
         />
       )}
     </div>

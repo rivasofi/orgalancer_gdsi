@@ -4,7 +4,7 @@ from typing import List
 from datetime import datetime, timezone
 
 from app.database import get_db
-from app.models import User, Task
+from app.models import User, Task, TaskStatus, Project
 from app.schemas.task import TaskCreate, TaskResponse, TaskUpdateStatus
 from app.routers.auth import get_current_user
 
@@ -16,6 +16,14 @@ def create_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    project = db.query(Project).filter(
+        Project.id == task_in.project_id,
+        Project.user_id == current_user.id
+    ).first()
+
+    if not project:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado o no autorizado")
+
     now = datetime.now(timezone.utc).isoformat()
 
     new_task = Task(
@@ -25,7 +33,7 @@ def create_task(
         description=task_in.description,
         priority=task_in.priority,
         target_date=task_in.target_date,
-        status="Pendiente",
+        status=TaskStatus.pending,
         created_at=now,
         updated_at=now
     )

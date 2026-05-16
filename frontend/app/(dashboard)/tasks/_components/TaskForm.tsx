@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface TaskFormProps {
   onSuccess: () => void;
@@ -11,13 +11,31 @@ interface TaskFormProps {
 export default function TaskForm({ onSuccess, onError, onClose }: TaskFormProps) {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [projects, setProjects] = useState<{id: string, name: string}[]>([]);
 
-  // Mock projects for now
-  const MOCK_PROJECTS = [
-    { id: "proj_1", name: "Desarrollo de e-commerce" },
-    { id: "proj_2", name: "Dashboard de métricas de ventas" },
-    { id: "proj_3", name: "Diseño UX/UI para fintech" },
-  ];
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await fetch("/api/projects", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          setProjects(data);
+        }
+      } catch (err) {
+        console.error("Error cargando proyectos", err);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const validate = (formData: FormData) => {
     const newErrors: Record<string, string> = {};
@@ -154,7 +172,7 @@ export default function TaskForm({ onSuccess, onError, onClose }: TaskFormProps)
             className={`w-full px-4 py-2.5 border rounded-xl text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-400 transition-colors bg-white ${errors.project_id ? 'border-red-500' : 'border-gray-300'}`}
           >
             <option value="">Selecciona un proyecto...</option>
-            {MOCK_PROJECTS.map(p => (
+            {projects.map(p => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
           </select>

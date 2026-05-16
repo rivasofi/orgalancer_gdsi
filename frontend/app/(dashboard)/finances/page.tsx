@@ -1,14 +1,27 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import FinancesHeader from "./_components/finances_header";
 import FinancesShell from "./_components/finances_shell";
 import FinancialForm from "./_components/financial_form";
-import { FinancesSettings } from "./_components/temporal_settings_form";
-
+import TariffCalculator from "./_components/tariff_calculator";
 import { useFinancialForm } from "./_hooks/use_financial_form";
+
+interface StoredUser {
+  id: string;
+  profession: string;
+  years_of_experience?: string | null;
+  country?: string | null;
+}
 
 export default function FinancesPage() {
   const form = useFinancialForm();
+  const [storedUser, setStoredUser] = useState<StoredUser | null>(null);
+
+  useEffect(() => {
+    const raw = localStorage.getItem("user");
+    if (raw) setStoredUser(JSON.parse(raw));
+  }, []);
 
   return (
     <>
@@ -17,7 +30,7 @@ export default function FinancesPage() {
         subtitle="Configurá tus datos para calcular tarifas"
       />
       <div className="flex flex-col gap-10 px-4">
-        
+
         <div className="max-w-2xl w-full">
           <FinancesShell title="Configuración Financiera">
             <FinancialForm {...form} />
@@ -25,8 +38,19 @@ export default function FinancesPage() {
         </div>
 
         <div className="w-full">
-          <FinancesShell title="Calculadora de Tarifas">
-            <FinancesSettings />
+          <FinancesShell title="Calculadora de Tarifa Mínima">
+            {storedUser ? (
+              <TariffCalculator
+                user_id={storedUser.id}
+                current_hourly_rate={parseFloat(form.formData.hourly_rate as string) || 0}
+                coin_type={form.formData.coin_type}
+                profession={storedUser.profession}
+                years_of_experience={storedUser.years_of_experience ?? null}
+                country={storedUser.country ?? null}
+              />
+            ) : (
+              <p className="text-sm text-gray-400 py-4">Iniciá sesión para usar la calculadora.</p>
+            )}
           </FinancesShell>
         </div>
 

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
-from app.routers import auth, user_profile, financial_profile
+from app.routers import auth, user_profile, financial_profile, clients
 from app.routers.tariff_suggestion import router as tariff_router
 from app.database import engine, Base
 import app.models  # noqa: F401 — necesario para que Base registre los modelos
@@ -44,6 +44,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(auth.router)
 app.include_router(user_profile.router)
 app.include_router(financial_profile.router)
+app.include_router(clients.router)
 app.include_router(tariff_router)
 
 @app.get("/health")

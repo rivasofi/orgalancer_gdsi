@@ -76,7 +76,10 @@ export function useCreateProjectForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Error al crear el proyecto");
+        const errorMsg = Array.isArray(data.error)
+          ? data.error.map((e: any) => e.msg.replace("Value error, ", "")).join(", ")
+          : data.error ?? "Error al crear el proyecto";
+        throw new Error(String(errorMsg));
       }
 
       window.dispatchEvent(new CustomEvent("projectCreated"));

@@ -7,6 +7,7 @@ import { Plus, X, Briefcase } from 'lucide-react';
 import { useProjects } from "./_hooks/use_projects";
 import { useCreateProjectForm } from "./_hooks/create_new_project";
 
+import SectionHeader from "./../_components/section_header";
 import StatsHeader from "./_components/stats_header";
 import ProjectFilters from "./_components/project_filters";
 import ProjectsGrid from "./_components/projects_grid";
@@ -63,6 +64,7 @@ export default function ProjectsPage() {
       setTimeout(() => {
         setShowForm(false);
         actions.reload();
+        actions.reloadStats();
       }, 1500);
     }
   }
@@ -77,25 +79,19 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="max-w-screen-xl mx-auto space-y-6">
-      
-      {/* Header unificado: Estilo de ella + Lógica de toggle tuya */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
-            <Briefcase className="w-8 h-8 text-indigo-600" />
-            Proyectos
-          </h1>
-          <p className="text-gray-600 mt-1 text-sm">Gestioná todos tus proyectos freelance</p>
-        </div>
+    <> 
+      { /* header */ }
+      <SectionHeader title="Proyectos" subtitle="Gestioná todos tus proyectos freelance" icon={<Briefcase className="w-8 h-8 text-indigo-600"/>}>
         <button
           onClick={() => setShowForm((prev) => !prev)}
           className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:scale-[1.02] transition-all font-medium shadow-sm"
         >
-          {showForm ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-          <span>{showForm ? "Cancelar" : "Nuevo Proyecto"}</span>
+          {showForm ? (<X className="w-5 h-5" />) : (<Plus className="w-5 h-5" />)}
+          <span>
+            {showForm ? "Cancelar" : "Nuevo Proyecto"}
+          </span>
         </button>
-      </div>
+      </SectionHeader>
 
       {/* form (post) */}
       {showForm && (
@@ -219,7 +215,6 @@ export default function ProjectsPage() {
         activeFilter={state.activeFilter}
         currency="€"
       />
-
-    </div>
+    </>
   );
 }

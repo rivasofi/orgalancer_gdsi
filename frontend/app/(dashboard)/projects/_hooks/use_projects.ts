@@ -167,9 +167,12 @@ export function useProjects() {
   }, []);
 
   useEffect(() => {
-    loadProjects();
     loadStats();
-  }, [loadProjects, loadStats]);
+  }, [])
+;
+  useEffect(() => {
+    loadProjects();
+  }, [loadProjects]);
 
   const handleFilterChange = (filter: FilterTab) => {
     setActiveFilter(filter);
@@ -190,6 +193,7 @@ export function useProjects() {
       handleFilterChange,
       setViewMode,
       reload: loadProjects,
+      reloadStats: loadStats,
     },
   };
 }

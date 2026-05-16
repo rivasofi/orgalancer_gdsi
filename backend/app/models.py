@@ -42,3 +42,19 @@ class Client(Base):
     address = Column(String, nullable=True)
     website = Column(String, nullable=True)
     extra_info = Column(String, nullable=True)
+
+class Task(Base):
+    __tablename__ = "tasks"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    project_id = Column(String, nullable=False, index=True)
+    title = Column(String(100), nullable=False)
+    description = Column(String, nullable=False)
+    priority = Column(String, nullable=False)
+    target_date = Column(String, nullable=False)
+    status = Column(String, default="Pendiente", nullable=False)
+    created_at = Column(String, nullable=False)
+    updated_at = Column(String, nullable=False)
+
+    user = relationship("User")

@@ -4,19 +4,21 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X, Briefcase } from 'lucide-react';
 
-import { useProjects } from "./_hooks/use_projects";
+import { EnrichedProject, useProjects } from "./_hooks/use_projects";
 import { useCreateProjectForm } from "./_hooks/create_new_project";
 
 import SectionHeader from "./../_components/section_header";
 import StatsHeader from "./_components/stats_header";
 import ProjectFilters from "./_components/project_filters";
 import ProjectsGrid from "./_components/projects_grid";
+import EditProjectPanel from "./_components/edit_project_panel";
 
 export default function ProjectsPage() {
   const router = useRouter();
 
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+  const [editingProject, setEditingProject] = useState<EnrichedProject | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -56,8 +58,6 @@ export default function ProjectsPage() {
     clients 
   } = useCreateProjectForm();
 
-  // 
-  // Handler para cerrar el form y recargar la lista al crear
   async function onSubmit(e: React.FormEvent) {
     const isSuccess = await handleSubmit(e);
     if (isSuccess) {
@@ -80,6 +80,11 @@ export default function ProjectsPage() {
 
   return (
     <> 
+      <EditProjectPanel
+        project={editingProject}
+        onClose={() => setEditingProject(null)}
+        onSaved={() => { actions.reload(); actions.reloadStats(); }}
+      />
       { /* header */ }
       <SectionHeader title="Proyectos" subtitle="Gestioná todos tus proyectos freelance" icon={<Briefcase className="w-8 h-8 text-indigo-600"/>}>
         <button
@@ -214,6 +219,8 @@ export default function ProjectsPage() {
         loading={state.loading}
         activeFilter={state.activeFilter}
         currency="€"
+        onEdit={(project) => setEditingProject(project)}
+        onStateChange={() => { actions.reload(); actions.reloadStats(); }} 
       />
     </>
   );

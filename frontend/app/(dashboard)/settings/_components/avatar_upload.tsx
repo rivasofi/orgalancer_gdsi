@@ -23,36 +23,30 @@ function getInitials(name: string): string {
 }
 
 interface AvatarUploadProps {
-  userId: string;
   fullName: string;
   avatarUrl?: string | null;
   onUploadSuccess: (url: string) => void;
 }
 
-export default function AvatarUpload({
-  userId,
-  fullName,
-  avatarUrl,
-  onUploadSuccess,
-}: AvatarUploadProps) {
+
+export default function AvatarUpload({ fullName, avatarUrl, onUploadSuccess }: AvatarUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const displaySrc = preview ?? getFullUrl(avatarUrl);
-  
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const allowed = ["image/jpeg", "image/png", "image/gif"];
-    if (!allowed.includes(file.type)) {
-      setError("Only JPG, PNG or GIF files are allowed.");
+    if (!["image/jpeg", "image/png", "image/gif"].includes(file.type)) {
+      setError("Solo se permiten archivos JPG, PNG o GIF.");
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      setError("File size must not exceed 2 MB.");
+      setError("El archivo no puede superar los 2 MB.");
       return;
     }
 
@@ -65,20 +59,29 @@ export default function AvatarUpload({
 
     try {
       setUploading(true);
-      const res = await fetch(`${API_BASE}/users/avatar/${userId}`, {
+
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No estás autenticado.");
+
+      const res = await fetch("/api/settings/avatar", {
         method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-      if (!res.ok) throw new Error("Upload failed");
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Error al subir la imagen.");
+      }
+
       const data = await res.json();
-      onUploadSuccess(data.avatar_url ?? data.url ?? objectUrl);
-    } catch {
-      setError("Upload failed. Please try again.");
+      onUploadSuccess(data.avatar_url ?? objectUrl);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al subir la imagen.");
       setPreview(null);
       URL.revokeObjectURL(objectUrl);
     } finally {
       setUploading(false);
-      // reset so same file can be re-selected
       if (inputRef.current) inputRef.current.value = "";
     }
   };

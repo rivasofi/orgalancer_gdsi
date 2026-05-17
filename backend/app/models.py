@@ -1,5 +1,6 @@
 import uuid
-from sqlalchemy import Column, String, Float, ForeignKey, Date, Numeric, Enum, Boolean
+from sqlalchemy import Column, String, Float, ForeignKey, Date, Numeric
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from app.database import Base
 import enum
@@ -67,23 +68,35 @@ class Project(Base):
     
     name = Column(String, nullable=False)
     description = Column(String, nullable=True)
-    contract_type = Column( Enum(ContractType), nullable=False)
+    contract_type = Column( SQLEnum(ContractType), nullable=False)
     estimated_budget = Column(Numeric(10, 2), nullable=False, default=0.00)
     earned = Column(Numeric(10, 2), nullable=False, default=0.00)
     start_date = Column(Date,  nullable=True)
     deadline = Column(Date, nullable=True)
-    state = Column( Enum(ProjectState), nullable=False, default="active")
+    state = Column( SQLEnum(ProjectState), nullable=False, default=ProjectState.active)
 
     user = relationship("User", back_populates="projects")
     client = relationship("Client", back_populates="projects")
     tasks = relationship("Task", back_populates="project", cascade="all, delete-orphan")
 
+class TaskStatus(str, enum.Enum):
+    pending = "Pendiente"
+    in_progress = "En Progreso"
+    completed = "Completada"
+
 class Task(Base):
-      __tablename__ = "tasks"
+    __tablename__ = "tasks"
 
-      id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-      project_id = Column(String, ForeignKey("projects.id"), nullable=False, index=True)
-      title = Column(String, nullable=False, default="")
-      is_completed = Column(Boolean, nullable=False, default=False)
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    project_id = Column(String, ForeignKey("projects.id"), nullable=False, index=True)
+    title = Column(String(100), nullable=False)
+    description = Column(String, nullable=False)
+    priority = Column(String, nullable=False)
+    target_date = Column(String, nullable=False)
+    status = Column(SQLEnum(TaskStatus), default=TaskStatus.pending, nullable=False)
+    created_at = Column(String, nullable=False)
+    updated_at = Column(String, nullable=False)
 
-      project = relationship("Project", back_populates="tasks")
+    user = relationship("User")
+    project = relationship("Project", back_populates="tasks")

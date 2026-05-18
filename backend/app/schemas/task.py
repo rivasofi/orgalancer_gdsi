@@ -1,0 +1,26 @@
+from pydantic import BaseModel, Field
+from typing import Optional
+
+class TaskBase(BaseModel):
+    title: str = Field(..., max_length=100)
+    description: str
+    priority: str
+    project_id: str
+    target_date: str
+
+class TaskCreate(TaskBase):
+    pass
+
+class TaskResponse(TaskBase):
+    id: str
+    user_id: str
+    status: str
+    created_at: str
+    updated_at: str
+    project_name: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+class TaskUpdateStatus(BaseModel):
+    status: str

@@ -68,12 +68,16 @@ export default function ClientsPage() {
     );
   });
 
+  const handleClearSearch = useCallback(() => {
+    setSearchInput("");
+    setSearchQuery("");
+  }, []);
+
   const hasClients = clients.length > 0;
   const noResults = hasClients && filteredClients.length === 0 && searchQuery.trim() !== "";
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-violet-700">Clientes</h1>
@@ -104,11 +108,21 @@ export default function ClientsPage() {
               placeholder="Buscar por nombre, email o etiqueta..."
               className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400 transition shadow-sm"
             />
+            {searchInput && (
+              <button
+                onClick={handleClearSearch}
+                aria-label="Limpiar búsqueda"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
+                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
       )}
 
-      {/* Contenido */}
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
           <p className="text-sm text-gray-400">Cargando clientes...</p>
@@ -150,10 +164,15 @@ export default function ClientsPage() {
               No se encontraron clientes que coincidan con{" "}
               <span className="font-medium text-gray-600">&quot;{searchQuery}&quot;</span>.
             </p>
+            <button
+              onClick={handleClearSearch}
+              className="px-6 py-2.5 rounded-xl border border-violet-300 text-violet-700 text-sm font-semibold hover:bg-violet-50 transition-colors"
+            >
+              Limpiar búsqueda
+            </button>
           </div>
         </div>
       ) : (
-        // Tabla
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full">
             <thead>
@@ -223,7 +242,6 @@ export default function ClientsPage() {
         </div>
       )}
 
-      {/* Modal */}
       {modalAbierto && (
         <NewClientModal
           onClose={() => setOpenModal(false)}

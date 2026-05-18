@@ -148,11 +148,10 @@ export default function ClientsPage() {
               </tr>
             </thead>
             <tbody>
-              {clients.map((client, i) => (
+              {filteredClients.map((client, i) => (
                 <tr
                   key={client.id}
-                  className={`hover:bg-violet-50/30 transition-colors ${i < clients.length - 1 ? "border-b border-gray-50" : ""}`}
-                >
+className={`hover:bg-violet-50/30 transition-colors ${i < filteredClients.length - 1 ? "border-b border-gray-50" : ""}`}                >
                   <td className="px-6 py-4">
                     <p className="text-sm font-semibold text-gray-800">{client.name}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{client.client_type}</p>

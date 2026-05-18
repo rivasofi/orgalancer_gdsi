@@ -1,21 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseBody, extractErrorMsg } from "./../utils";
 
-
-async function parseBody(response: Response) {
-  const text = await response.text();
-  if (!text) return null;
-  try {
-    return JSON.parse(text);
-  } catch {
-    return { detail: text };
-  }
-}
-
-// GET /api/projects?state=...
+// Get all projects, optionally filtered by state (active, completed, archived)
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const state = searchParams.get("state");
+    const state = new URL(req.url).searchParams.get("state");
     const backendUrl = new URL(`${process.env.API_URL}/projects/`);
     if (state) backendUrl.searchParams.set("state", state);
 
@@ -26,13 +15,8 @@ export async function GET(req: NextRequest) {
     });
 
     const data = await parseBody(response);
-
-    if (!response.ok) {
-      const errorMsg = Array.isArray(data?.detail)
-        ? data.detail.map((e: any) => e.msg.replace("Value error, ", "")).join(", ")
-        : data?.detail || "Error al obtener los proyectos";
-      return NextResponse.json({ error: errorMsg }, { status: response.status });
-    }
+    if (!response.ok)
+      return NextResponse.json({ error: extractErrorMsg(data, "Error al obtener los proyectos") }, { status: response.status });
 
     return NextResponse.json(data, { status: 200 });
 
@@ -42,12 +26,11 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST /api/projects
+// Create a new project
 export async function POST(req: NextRequest) {
   try {
     const token = req.headers.get("Authorization");
-    const body = await req.json();
-    const { user_id, ...projectData } = body;
+    const { user_id, ...projectData } = await req.json();
 
     const response = await fetch(`${process.env.API_URL}/projects/`, {
       method: "POST",
@@ -56,14 +39,8 @@ export async function POST(req: NextRequest) {
     });
 
     const data = await parseBody(response);
-
-    if (!response.ok) {
-      const errorMsg = Array.isArray(data?.detail)
-        ? data.detail.map((e: any) => e.msg.replace("Value error, ", "")).join(", ")
-        : data?.detail || "Error al crear el proyecto";
-      console.error("FastAPI error:", JSON.stringify(data, null, 2));
-      return NextResponse.json({ error: errorMsg }, { status: response.status });
-    }
+    if (!response.ok)
+      return NextResponse.json({ error: extractErrorMsg(data, "Error al crear el proyecto") }, { status: response.status });
 
     return NextResponse.json(data, { status: 201 });
 
@@ -71,35 +48,4 @@ export async function POST(req: NextRequest) {
     console.error("POST /api/projects error:", err);
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
-
 }
-
-export async function PUT(req: NextRequest) {
-  try {
-    const token = req.headers.get("Authorization");
-    const body = await req.json();
-    const { id, user_id, ...projectData } = body;
-
-    const response = await fetch(`${process.env.API_URL}/projects/?project_id=${id}`, {  // 👈
-      method: "PUT",
-      headers: { "Content-Type": "application/json", "Authorization": token || "" },
-      body: JSON.stringify(projectData),
-    });
-
-    const data = await parseBody(response);
-
-    if (!response.ok) {
-      const errorMsg = Array.isArray(data?.detail)
-        ? data.detail.map((e: any) => e.msg.replace("Value error, ", "")).join(", ")
-        : data?.detail || "Error al actualizar el proyecto";
-      console.error("FastAPI error:", JSON.stringify(data, null, 2));
-      return NextResponse.json({ error: errorMsg }, { status: response.status });
-    }
-
-    return NextResponse.json(data, { status: 200 });
-  } catch (err) {
-    console.error("PUT /api/projects error:", err);
-    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
-  }
-}
-

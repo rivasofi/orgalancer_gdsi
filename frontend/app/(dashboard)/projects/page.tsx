@@ -120,7 +120,7 @@ export default function ProjectsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del proyecto *</label>
+              <label className="block text-sm font-medium text-gray-800 mb-1">Nombre del proyecto *</label>
               <input
                 type="text"
                 required
@@ -132,7 +132,7 @@ export default function ProjectsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Cliente *</label>
+              <label className="block text-sm font-medium text-gray-800 mb-1">Cliente *</label>
               <select
                 required
                 value={formData.client_id}
@@ -149,7 +149,7 @@ export default function ProjectsPage() {
             </div>
 
             <div>
-              <label className="block text-sm text-gray-800 font-medium text-gray-700 mb-1">Tipo de contrato *</label>
+              <label className="block text-sm text-gray-800 font-medium text-gray-800 mb-1">Tipo de contrato *</label>
               <select
                 value={formData.contract_type}
                 onChange={(e) => setFormData((prev) => ({ ...prev, contract_type: e.target.value as any }))}
@@ -162,7 +162,7 @@ export default function ProjectsPage() {
             </div>
 
             <div>
-              <label className="block text-sm text-gray-800 font-medium text-gray-700 mb-1">Presupuesto estimado (€) *</label>
+              <label className="block text-sm text-gray-800 font-medium text-gray-800 mb-1">Presupuesto estimado (€) *</label>
               <input
                 type="number"
                 required
@@ -180,7 +180,7 @@ export default function ProjectsPage() {
                 type="date"
                 value={formData.deadline ? formData.deadline.toISOString().split("T")[0] : ""}
                 onChange={(e) => setFormData((prev) => ({ ...prev, deadline: e.target.value ? new Date(e.target.value) : null }))}
-                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none"
               />
             </div>
           </div>

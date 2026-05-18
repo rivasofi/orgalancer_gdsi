@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import NewClientModal from "@/app/(dashboard)/_components/new_client_modal";
 
@@ -20,6 +20,8 @@ export default function ClientsPage() {
   const [modalAbierto, setOpenModal] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchClients = async () => {
     try {

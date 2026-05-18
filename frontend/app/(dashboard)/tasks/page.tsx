@@ -14,6 +14,7 @@ interface Task {
   priority: string;
   target_date: string;
   project_id: string;
+  project_name: string | null;
   status: string;
 }
 
@@ -222,8 +223,8 @@ export default function TasksPage() {
                       {task.target_date}
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                      <User className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="truncate max-w-[120px]">{task.project_id}</span>
+                      <FolderOpen className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="truncate max-w-[160px]">{task.project_name || "Sin proyecto"}</span>
                     </div>
                     <div className="flex items-center">
                       <span className={`px-2.5 py-0.5 rounded-lg text-xs font-medium ${priorityColors[task.priority]}`}>

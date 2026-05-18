@@ -2,6 +2,11 @@
 
 import { useState, useEffect } from "react";
 
+interface Project {
+  id: string;
+  name: string;
+}
+
 interface TaskFormProps {
   onSuccess: () => void;
   onError: (msg: string) => void;
@@ -11,26 +16,27 @@ interface TaskFormProps {
 export default function TaskForm({ onSuccess, onError, onClose }: TaskFormProps) {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [projects, setProjects] = useState<{id: string, name: string}[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         const token = localStorage.getItem("token");
+        if (!token) return;
 
-        const res = await fetch("/api/projects", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const res = await fetch("/api/projects?state=active", {
+          headers: { "Authorization": `Bearer ${token}` },
         });
 
-        const data = await res.json();
-
         if (res.ok) {
-          setProjects(data);
+          const data = await res.json();
+          setProjects(data.map((p: any) => ({ id: p.id, name: p.name })));
         }
-      } catch (err) {
-        console.error("Error cargando proyectos", err);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setLoadingProjects(false);
       }
     };
 
@@ -134,7 +140,7 @@ export default function TaskForm({ onSuccess, onError, onClose }: TaskFormProps)
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-          Título de la tarea <span className="text-red-500">*</span>
+          Título <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
@@ -169,14 +175,26 @@ export default function TaskForm({ onSuccess, onError, onClose }: TaskFormProps)
           <select
             id="project_id"
             name="project_id"
-            className={`w-full px-4 py-2.5 border rounded-xl text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-400 transition-colors bg-white ${errors.project_id ? 'border-red-500' : 'border-gray-300'}`}
+            disabled={loadingProjects}
+            className={`w-full px-4 py-2.5 border rounded-xl text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-400 transition-colors bg-white disabled:bg-gray-50 disabled:text-gray-400 ${errors.project_id ? 'border-red-500' : 'border-gray-300'}`}
           >
-            <option value="">Selecciona un proyecto...</option>
-            {projects.map(p => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
+            {loadingProjects ? (
+              <option value="">Cargando proyectos...</option>
+            ) : projects.length === 0 ? (
+              <option value="">No hay proyectos activos</option>
+            ) : (
+              <>
+                <option value="">Selecciona un proyecto...</option>
+                {projects.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </>
+            )}
           </select>
           {errors.project_id && <p className="text-red-500 text-xs mt-1">{errors.project_id}</p>}
+          {!loadingProjects && projects.length === 0 && (
+            <p className="text-amber-600 text-xs mt-1">Necesitás crear un proyecto antes de agregar tareas.</p>
+          )}
         </div>
 
         <div>
@@ -223,7 +241,7 @@ export default function TaskForm({ onSuccess, onError, onClose }: TaskFormProps)
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || (projects.length === 0 && !loadingProjects)}
           className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-500 text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center"
         >
           {loading ? "Guardando..." : "Guardar"}

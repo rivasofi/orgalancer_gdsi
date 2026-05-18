@@ -10,6 +10,7 @@ interface Task {
   priority: string;
   target_date: string;
   project_id: string;
+  project_name: string | null;
   status: string;
 }
 
@@ -107,11 +108,11 @@ export default function TaskDetailModal({ task, onClose, onDelete }: Props) {
 
             <div className="bg-gray-50 rounded-xl p-4 flex items-start gap-3">
               <div className="bg-white p-2 rounded-lg shadow-sm">
-                <User className="w-5 h-5 text-gray-500" />
+                <FolderOpen className="w-5 h-5 text-gray-500" />
               </div>
               <div>
                 <p className="text-xs font-medium text-gray-400">Proyecto Asignado</p>
-                <p className="text-sm font-semibold text-gray-800 mt-0.5">{task.project_id}</p>
+                <p className="text-sm font-semibold text-gray-800 mt-0.5">{task.project_name || "Sin proyecto"}</p>
               </div>
             </div>
           </div>

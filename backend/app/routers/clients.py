@@ -5,7 +5,7 @@ from app.models import User, Client
 from app.schemas import ClientCreate, ClientUpdate, ClientResponse
 from app.routers.auth import get_current_user
 
-router = APIRouter(prefix="/clients", tags=["clients"]) #
+router = APIRouter(prefix="/clients", tags=["clients"])
 
 @router.post("", response_model=ClientResponse, status_code=201)
 def create_client(

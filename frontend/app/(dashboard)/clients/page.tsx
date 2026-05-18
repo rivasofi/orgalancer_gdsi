@@ -58,6 +58,16 @@ export default function ClientsPage() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
+  const filteredClients = clients.filter((client) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      client.name.toLowerCase().includes(q) ||
+      client.email.toLowerCase().includes(q) ||
+      client.client_type.toLowerCase().includes(q)
+    );
+  });
+
   const hasClients = clients.length > 0;
 
   return (

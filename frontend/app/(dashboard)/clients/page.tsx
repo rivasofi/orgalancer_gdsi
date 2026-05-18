@@ -51,6 +51,8 @@ export default function ClientsPage() {
     fetchClients();
   }, []);
 
+  const hasClients = clients.length > 0;
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -67,6 +69,26 @@ export default function ClientsPage() {
           Nuevo cliente
         </button>
       </div>
+
+      {hasClients && (
+  <div className="mb-5">
+    <div className="relative max-w-md">
+      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M20 20l-3-3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+      </span>
+      <input
+        type="text"
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
+        placeholder="Buscar por nombre, email o etiqueta..."
+        className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400 transition shadow-sm"
+      />
+    </div>
+  </div>
+    )}
 
       {/* Contenido */}
       {loading ? (

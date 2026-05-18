@@ -51,6 +51,13 @@ export default function ClientsPage() {
     fetchClients();
   }, []);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(searchInput);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
   const hasClients = clients.length > 0;
 
   return (

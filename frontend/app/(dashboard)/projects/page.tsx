@@ -126,7 +126,7 @@ export default function ProjectsPage() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none"
                 placeholder="Ej: Rediseño E-commerce"
               />
             </div>
@@ -137,7 +137,7 @@ export default function ProjectsPage() {
                 required
                 value={formData.client_id}
                 onChange={(e) => setFormData((prev) => ({ ...prev, client_id: e.target.value }))}
-                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
               >
                 <option value="">Selecciona un cliente</option>
                 {clients.map((client) => (
@@ -149,7 +149,7 @@ export default function ProjectsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de contrato *</label>
+              <label className="block text-sm text-gray-800 font-medium text-gray-700 mb-1">Tipo de contrato *</label>
               <select
                 value={formData.contract_type}
                 onChange={(e) => setFormData((prev) => ({ ...prev, contract_type: e.target.value as any }))}
@@ -162,7 +162,7 @@ export default function ProjectsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Presupuesto estimado (€) *</label>
+              <label className="block text-sm text-gray-800 font-medium text-gray-700 mb-1">Presupuesto estimado (€) *</label>
               <input
                 type="number"
                 required
@@ -175,7 +175,7 @@ export default function ProjectsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha límite</label>
+              <label className="block text-sm text-gray-800 font-medium mb-1">Fecha límite</label>
               <input
                 type="date"
                 value={formData.deadline ? formData.deadline.toISOString().split("T")[0] : ""}

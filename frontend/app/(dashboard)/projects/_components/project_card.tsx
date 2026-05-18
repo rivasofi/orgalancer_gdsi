@@ -1,13 +1,16 @@
-import { User, Calendar } from "lucide-react";
+import { User, Calendar, Pencil } from "lucide-react";
 import Link from "next/link";
 import { EnrichedProject } from "../_hooks/use_projects";
 import ProgressBar from "./progress_bar";
 import StatusBadge from "./status_badge";
 import DeadlineChip from "./deadline_chip";
+import { useState } from "react"; 
 
 interface ProjectCardProps {
   project: EnrichedProject;
   currency?: string;
+  onEdit: (project: EnrichedProject) => void;
+  onStateChange?: () => void; 
 }
 
 function formatCurrency(value: number, currency = "€") {
@@ -23,14 +26,44 @@ const CONTRACT_TYPE_LABEL: Record<string, string> = {
 export default function ProjectCard({
   project,
   currency = "€",
+  onEdit,
+  onStateChange,
 }: ProjectCardProps) {
+
+  const [currentState, setCurrentState] = useState(project.state); 
+
+  async function handleStateChange(newState: "completed" | "cancelled" | "active") {
+    const token = localStorage.getItem("token");
+    const previousState = currentState;
+
+    setCurrentState(newState); 
+    try {
+      const res = await fetch(`/api/projects`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id: project.id, state: newState }),
+      });
+      if (res.ok) {
+        onStateChange?.();
+      }else{
+        setCurrentState(previousState);
+      }
+    } catch (err) {
+      console.error("Error cambiando estado:", err);
+      setCurrentState(previousState);
+    }
+  }
   return (
+    
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col overflow-hidden">
       {/* Top section */}
-      <div className="p-5 flex-1">
+        <div className="p-5 flex-1">
+        
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 text-xs text-gray-400">
-            {/* Contract type icon indicator */}
             <span className="w-5 h-5 text-gray-400">
               <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="3" y="5" width="14" height="11" rx="2" stroke="currentColor" strokeWidth="1.5"/>
@@ -38,7 +71,17 @@ export default function ProjectCard({
               </svg>
             </span>
           </div>
-          <StatusBadge status={project.state} />
+          <div className="flex items-center gap-2"> 
+             {currentState === "active" && (
+            <button
+              onClick={() => onEdit(project)}
+              className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-gray-500 hover:bg-gray-100 transition-colors"
+            >
+              <Pencil className="w-3 h-3" />
+              Editar
+            </button>)}
+            <StatusBadge status={currentState} />
+          </div>
         </div>
 
         <h3 className="font-semibold text-gray-900 text-base leading-tight mb-1 line-clamp-2">
@@ -117,6 +160,34 @@ export default function ProjectCard({
           Ver Detalles
         </Link>
       </div>
+
+      {currentState === "active" && (
+        <div className="px-5 pb-4 flex gap-2">
+          <button
+            onClick={() => handleStateChange("completed")}
+            className="flex-1 py-2 rounded-xl border border-green-200 text-green-600 hover:bg-green-50 text-xs font-medium transition-colors"
+          >
+            ✓ Completar
+          </button>
+          <button
+            onClick={() => handleStateChange("cancelled")}
+            className="flex-1 py-2 rounded-xl border border-red-200 text-red-500 hover:bg-red-50 text-xs font-medium transition-colors"
+          >
+            ✕ Cancelar
+          </button>
+        </div>
+      )}
+
+      {currentState === "cancelled" && (
+        <div className="px-5 pb-4">
+          <button
+            onClick={() => handleStateChange("active")}
+            className="w-full py-2 rounded-xl border border-indigo-200 text-indigo-600 hover:bg-indigo-50 text-xs font-medium transition-colors"
+          >
+            ↩ Reactivar
+          </button>
+        </div>
+      )}
     </div>
   );
 }

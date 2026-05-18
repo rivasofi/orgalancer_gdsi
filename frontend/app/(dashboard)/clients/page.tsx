@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import NewClientModal from "@/app/(dashboard)/_components/new_client_modal";
+import SectionHeader from "./../_components/section_header"
+import { Users } from "lucide-react"
 
 type Client = {
   id: string;
@@ -53,19 +55,16 @@ export default function ClientsPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-violet-700">Clientes</h1>
-          <p className="text-sm text-gray-400 mt-1">Gestiona tus relaciones comerciales</p>
-        </div>
+      <SectionHeader title="Clientes" subtitle="Gestiona tus relaciones comerciales" icon={<Users className="w-8 
+      h-8 text-indigo-600"/>}>
         <button
           onClick={() => setOpenModal(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-500 text-white text-sm font-semibold hover:opacity-90 transition-opacity shadow"
+          className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:scale-[1.02] transition-all font-medium shadow-sm"
         >
           <span className="text-lg leading-none">+</span>
           Nuevo cliente
         </button>
-      </div>
+      </SectionHeader>
 
       {/* Contenido */}
       {loading ? (

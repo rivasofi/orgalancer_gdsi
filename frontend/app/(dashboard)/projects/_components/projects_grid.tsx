@@ -11,6 +11,8 @@ interface ProjectsGridProps {
   activeFilter: string;
   currency?: string;
   onNewProject?: () => void;
+  onEdit: (project: EnrichedProject) => void;
+  onStateChange: () => void;
 }
 
 function SkeletonCard() {
@@ -41,6 +43,7 @@ export default function ProjectsGrid({
   activeFilter,
   currency,
   onNewProject,
+  onEdit,
 }: ProjectsGridProps) {
   if (loading) {
     return viewMode === "grid" ? (
@@ -71,7 +74,7 @@ export default function ProjectsGrid({
     return (
       <div className="flex flex-col gap-3">
         {projects.map((project) => (
-          <ProjectListRow key={project.id} project={project} currency={currency} />
+          <ProjectListRow key={project.id} project={project} currency={currency} onEdit={onEdit} />
         ))}
       </div>
     );
@@ -80,7 +83,7 @@ export default function ProjectsGrid({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
       {projects.map((project) => (
-        <ProjectCard key={project.id} project={project} currency={currency} />
+        <ProjectCard key={project.id} project={project} currency={currency} onEdit={onEdit} />
       ))}
     </div>
   );

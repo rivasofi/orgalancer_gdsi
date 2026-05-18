@@ -1,11 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import Client
+from app.models import User, Client
 from app.schemas import ClientCreate, ClientUpdate, ClientResponse
-import jwt
-import os
-from dotenv import load_dotenv
+from app.routers.auth import get_current_user
 
 router = APIRouter(prefix="/clients", tags=["clients"])
 
@@ -13,12 +11,12 @@ router = APIRouter(prefix="/clients", tags=["clients"])
 def create_client(
     client: ClientCreate,
     db: Session = Depends(get_db),
-    user_id: str = Depends(get_current_user_id)
+    current_user: str = Depends(get_current_user)
 ):
-    if db.query(Client).filter(Client.email == client.email, Client.user_id == user_id).first():
+    if db.query(Client).filter(Client.email == client.email, Client.user_id == current_user.id).first():
         raise HTTPException(status_code=400, detail="Ya existe un cliente con ese email")
 
-    new = Client(**client.model_dump(), user_id=user_id)
+    new = Client(**client.model_dump(), user_id=current_user.id)
     db.add(new)
     db.commit()
     db.refresh(new)
@@ -28,43 +26,43 @@ def create_client(
 @router.get("", response_model=list[ClientResponse])
 def display_clients(
     db: Session = Depends(get_db),
-    user_id: str = Depends(get_current_user_id)
+    current_user: str = Depends(get_current_user)
 ):
-    return db.query(Client).filter(Client.user_id == user_id).all()
+    return db.query(Client).filter(Client.user_id == current_user.id).all()
 
 
 @router.get("/{client_id}", response_model=ClientResponse)
 def get_client(
     client_id: str,
     db: Session = Depends(get_db),
-    user_id: str = Depends(get_current_user_id)
+    current_user: str = Depends(get_current_user)
 ):
     client = db.query(Client).filter(
         Client.id == client_id,
-        Client.user_id == user_id
+        Client.user_id == current_user.id
     ).first()
     if not client:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
     return client
-  
+
 
 @router.put("/{client_id}", response_model=ClientResponse)
 def update_client(
     client_id: str,
     client_data: ClientUpdate,
     db: Session = Depends(get_db),
-    user_id: str = Depends(get_current_user_id)
+    current_user: User = Depends(get_current_user)
 ):
     client = db.query(Client).filter(
         Client.id == client_id,
-        Client.user_id == user_id
+        Client.user_id == current_user.id
     ).first()
     if not client:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
 
     email_exists = db.query(Client).filter(
         Client.email == client_data.email,
-        Client.user_id == user_id,
+        Client.user_id == current_user.id,
         Client.id != client_id
     ).first()
     if email_exists:

@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Optional
 
 class TaskBase(BaseModel):
     title: str = Field(..., max_length=100)
@@ -16,6 +17,7 @@ class TaskResponse(TaskBase):
     status: str
     created_at: str
     updated_at: str
+    project_name: Optional[str] = None
 
     class Config:
         from_attributes = True

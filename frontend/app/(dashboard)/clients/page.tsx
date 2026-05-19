@@ -81,9 +81,11 @@ export default function ClientsPage() {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header */}
-      <SectionHeader title="Clientes" subtitle="Gestiona tus relaciones comerciales" icon={<Users className="w-8 
-      h-8 text-indigo-600"/>}>
+      <SectionHeader
+        title="Clientes"
+        subtitle="Gestiona tus relaciones comerciales"
+        icon={<Users className="w-8 h-8 text-indigo-600" />}
+      >
         <button
           onClick={() => setOpenModal(true)}
           className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:scale-[1.02] transition-all font-medium shadow-sm"

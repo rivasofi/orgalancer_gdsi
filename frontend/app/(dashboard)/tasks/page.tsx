@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Circle, CheckCircle2, CircleDot, Calendar, FolderOpen, LayoutList } from "lucide-react";
+import { Plus, Clock, Check, Circle, CheckCircle2, CircleDot, Calendar, User, LayoutList, FolderOpen } from "lucide-react";
+import SectionHeader from "./../_components/section_header"
 import TaskModal from "./_components/TaskModal";
 import TaskForm from "./_components/TaskForm";
 import TaskDetailModal from "./_components/TaskDetailModal";
@@ -137,11 +138,7 @@ export default function TasksPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-violet-700">Tareas</h1>
-          <p className="text-sm text-gray-400 mt-1">Organiza y prioriza tu trabajo</p>
-        </div>
+      <SectionHeader title="Tareas" subtitle="Organiza y prioriza tu trabajo" icon={<Check className="w-8 h-8 text-indigo-600"/>}>
         <button
           onClick={() => setIsModalOpen(true)}
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-500 text-white text-sm font-semibold hover:opacity-90 transition-opacity shadow"
@@ -149,7 +146,7 @@ export default function TasksPage() {
           <span className="text-lg leading-none">+</span>
           Nueva Tarea
         </button>
-      </div>
+      </SectionHeader>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-6">

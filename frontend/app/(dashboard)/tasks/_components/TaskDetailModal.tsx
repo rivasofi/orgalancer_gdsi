@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Calendar, FolderOpen } from "lucide-react";
+import { Calendar, FolderOpen, Clock, User } from "lucide-react";
 
 interface Task {
   id: string;

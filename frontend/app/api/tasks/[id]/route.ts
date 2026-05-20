@@ -1,52 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseBody, extractErrorMsg } from "../../utils";
 
-export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
-  const body = await req.json();
-  const token = req.headers.get("Authorization");
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const token = req.headers.get("Authorization");
+    const body = await req.json();
 
-  const response = await fetch(`${process.env.API_URL}/tasks/${params.id}/status`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": token || "",
-    },
-    body: JSON.stringify(body),
-  });
+    const response = await fetch(`${process.env.API_URL}/tasks/${id}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", "Authorization": token || "" },
+      body: JSON.stringify(body),
+    });
 
-  const data = await response.json();
+    const data = await parseBody(response);
+    if (!response.ok)
+      return NextResponse.json({ error: extractErrorMsg(data, "Error al actualizar el estado de la tarea") }, { status: response.status });
 
-  if (!response.ok) {
-    return NextResponse.json(
-      { error: data.detail || "Error al actualizar el estado de la tarea" },
-      { status: response.status }
-    );
+    return NextResponse.json(data);
+
+  } catch (err) {
+    console.error("PATCH /api/tasks/[id] error:", err);
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
-
-  return NextResponse.json(data);
 }
 
-export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
-  const token = req.headers.get("Authorization");
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const token = req.headers.get("Authorization");
 
-  const response = await fetch(`${process.env.API_URL}/tasks/${params.id}`, {
-    method: "DELETE",
-    headers: {
-      "Authorization": token || "",
-    },
-  });
+    const response = await fetch(`${process.env.API_URL}/tasks/${id}`, {
+      method: "DELETE",
+      headers: { "Authorization": token || "" },
+    });
 
-  if (!response.ok) {
-    let errorMessage = "Error al eliminar la tarea";
+    if (!response.ok) {
+      const data = await parseBody(response);
+      return NextResponse.json({ error: extractErrorMsg(data, "Error al eliminar la tarea") }, { status: response.status });
+    }
 
-    try {
-      const errorData = await response.json();
-      errorMessage = errorData.detail || errorMessage;
-    } catch (e) { }
+    return new NextResponse(null, { status: 204 });
 
-    return NextResponse.json({ error: errorMessage }, { status: response.status });
+  } catch (err) {
+    console.error("DELETE /api/tasks/[id] error:", err);
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
-
-  return new NextResponse(null, { status: 204 });
 }

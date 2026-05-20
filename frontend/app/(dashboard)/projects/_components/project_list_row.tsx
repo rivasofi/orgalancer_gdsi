@@ -8,7 +8,7 @@ import DeadlineChip from "./deadline_chip";
 interface ProjectListRowProps {
   project: EnrichedProject;
   currency?: string;
-  onEdit: (project: EnrichedProject) => void;
+  onEdit?: (project: EnrichedProject) => void;
 }
 
 function formatCurrency(value: number, currency = "€") {

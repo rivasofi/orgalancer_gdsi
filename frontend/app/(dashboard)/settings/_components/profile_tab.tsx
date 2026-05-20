@@ -28,19 +28,25 @@ function Skeleton() {
 }
 
 export default function ProfileTab() {
-  const user = getUser();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user?.id) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
     let cancelled = false;
+
     (async () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`${API_BASE}/users/me/${user.id}`);
+
+        const res = await fetch("/api/settings", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
         if (!res.ok) throw new Error();
         const data: ProfileData = await res.json();
         if (!cancelled) setProfile(data);
@@ -50,8 +56,9 @@ export default function ProfileTab() {
         if (!cancelled) setLoading(false);
       }
     })();
+
     return () => { cancelled = true; };
-  }, [user?.id]);
+  }, []);
 
   const update = (partial: Partial<ProfileData>) =>
     setProfile(prev => prev ? { ...prev, ...partial } : prev);
@@ -80,7 +87,6 @@ export default function ProfileTab() {
             </div>
           </div>
           <AvatarUpload
-            userId={profile.id}
             fullName={profile.full_name}
             avatarUrl={profile.avatar_url}
             onUploadSuccess={url => update({ avatar_url: url })}

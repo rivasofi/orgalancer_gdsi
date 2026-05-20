@@ -9,10 +9,14 @@ export function useLoginForm() {
   });
   const [error, set_error] = useState("");
   const [loading, set_loading] = useState(false);
-  const [success, set_success] = useState(false);
+  const [show_password, set_show_password] = useState(false);
 
   const handle_change = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFields({ ...fields, [e.target.name]: e.target.value });
+  };
+
+  const toggle_password_visibility = () => {
+    set_show_password((prev) => !prev);
   };
 
   const handle_submit = async (e: React.FormEvent) => {
@@ -32,14 +36,13 @@ export function useLoginForm() {
       if (!res.ok) {
         return set_error(data.error || "Email o contraseña incorrectos");
       }
-      
+
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data));
 
-      set_success(true);
       setTimeout(() => {
         router.push("/dashboard");
-      }, 2000);
+      }, 250);
 
     } catch {
       set_error("Error de conexión, intentá de nuevo");
@@ -52,8 +55,9 @@ export function useLoginForm() {
     fields,
     error,
     loading,
-    success,
+    show_password,
     handle_change,
     handle_submit,
+    toggle_password_visibility,
   };
 }

@@ -1,27 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseBody, extractErrorMsg } from "./../../utils";
 
-// GET /api/projects/stats
+// Get aggregated statistics about projects
 export async function GET(req: NextRequest) {
-  const backendUrl = `${process.env.API_URL}/projects/stats`;
-  const token = req.headers.get("Authorization");
+  try {
+    const token = req.headers.get("Authorization");
 
-  const response = await fetch(backendUrl, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": token || "",
-    },
-    cache: "no-store",
-  });
+    const response = await fetch(`${process.env.API_URL}/projects/stats`, {
+      headers: { "Content-Type": "application/json", "Authorization": token || "" },
+      cache: "no-store",
+    });
 
-  const data = await response.json();
+    const data = await parseBody(response);
+    if (!response.ok)
+      return NextResponse.json({ error: extractErrorMsg(data, "Error al obtener estadísticas") }, { status: response.status });
 
-  if (!response.ok) {
-    return NextResponse.json(
-      { error: data.detail || "Error al obtener estadísticas" },
-      { status: response.status }
-    );
+    return NextResponse.json(data, { status: 200 });
+
+  } catch (err) {
+    console.error("GET /api/projects/stats error:", err);
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
-
-  return NextResponse.json(data, { status: 200 });
 }

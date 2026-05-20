@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import FinancesHeader from "./_components/finances_header";
 import { Wallet } from "lucide-react";
 import SectionHeader from "./../_components/section_header"
 import FinancesShell from "./_components/finances_shell";

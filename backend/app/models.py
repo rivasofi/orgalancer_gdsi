@@ -31,6 +31,9 @@ class FinancialConfiguration(Base):
     coin_type = Column(String, nullable=False)
     hourly_rate = Column(Float, nullable=False, default=0.0)
     profit_margin = Column(Float, nullable=False, default=0.0)
+    desired_salary = Column(Float, nullable=True, default=0.0)
+    monthly_hours = Column(Float, nullable=True, default=160.0)
+    fixed_expenses = Column(Float, nullable=True, default=0.0)
 
     user = relationship("User", back_populates="financial_config")
 

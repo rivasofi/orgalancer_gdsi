@@ -1,5 +1,5 @@
 from pydantic import BaseModel, field_validator
-from typing import ClassVar
+from typing import ClassVar, Optional
 
 
 class FinancialConfig(BaseModel):
@@ -47,6 +47,21 @@ class FinancialConfigResponse(BaseModel):
     coin_type: str
     hourly_rate: float
     profit_margin: float
+    desired_salary: Optional[float] = 0.0
+    monthly_hours: Optional[float] = 160.0
+    fixed_expenses: Optional[float] = 0.0
 
     class Config:
         from_attributes = True
+
+
+class TariffSuggestionRequest(BaseModel):
+    user_id: str
+    desired_salary: float
+    monthly_hours: float
+    fixed_expenses: float
+    current_hourly_rate: float
+    coin_type: str
+    profession: str
+    years_of_experience: Optional[str] = "1-3"
+    country: Optional[str] = None

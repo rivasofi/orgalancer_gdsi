@@ -5,8 +5,6 @@
 import { useState, useEffect } from "react";
 import { ProfileData } from "../_components/profile_form";
 
-import { API_BASE } from "../_lib/api";
-
 function splitName(full: string) {
   const parts = full.trim().split(/\s+/);
   return { first: parts[0] ?? "", last: parts.slice(1).join(" ") };
@@ -60,6 +58,9 @@ export function useProfileForm(profile: ProfileData, onUpdate: (updated: Partial
     setError(null);
 
     try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No estás autenticado.");
+
       const payload = {
         full_name: fullName,
         profession: profession.trim() || null,
@@ -69,20 +70,18 @@ export function useProfileForm(profile: ProfileData, onUpdate: (updated: Partial
         years_of_experience: yearsExp || null,
       };
 
-      const res = await fetch(`${API_BASE}/users/profile/${profile.id}`, {
+      const res = await fetch("/api/settings", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        const detail = body?.detail;
-        const clean = (s: string) => s.replace(/^value error,\s*/i, "");
-        const msg = Array.isArray(detail)
-          ? detail.map((d: { msg: string }) => clean(d.msg)).join(", ")
-          : clean(detail ?? "No se pudieron guardar los cambios.");
-        throw new Error(msg);
+        throw new Error(body.error ?? "No se pudieron guardar los cambios.");
       }
 
       const updated: Partial<ProfileData> = await res.json();
@@ -91,13 +90,13 @@ export function useProfileForm(profile: ProfileData, onUpdate: (updated: Partial
       try {
         const raw = localStorage.getItem("user");
         if (raw) {
-          const parsed = JSON.parse(raw);
           localStorage.setItem(
             "user",
-            JSON.stringify({ ...parsed, full_name: fullName })
+            JSON.stringify({ ...JSON.parse(raw), full_name: fullName })
           );
         }
       } catch {}
+
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3500);
     } catch (err: unknown) {
